@@ -30,4 +30,4 @@ handler.setFormatter(formatter)
 # add handlers to the logger
 logger.addHandler(handler)
 
-from app.views import antminer, antminer_json
+from app.views import antminer, antminer_json, backUpdate

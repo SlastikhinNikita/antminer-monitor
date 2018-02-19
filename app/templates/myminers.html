@@ -2,19 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Antminer Monitor {{ version }}</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">
-    <script src="/static/coinwidget/coin.js"></script>
+    <title>Antminer Monitor</title>
+   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}} ">
+
 </head>
 <body>
-<h2>Antminer Monitor {{ version }}</h2>
+
+<div class="row">
+<div class="col">
+<h2>Antminer Monitor</h2>
 <fieldset style="width: 300px;">
 <legend>Countdown</legend>
 <b id="countdown"></b>
 </fieldset>
+</div>
+</div>
+
+
+
 
 <div class="container">
-    <div>
+    <div class="row">
+    <div class="col">
+
+	
+	
+	
+	
+	
       <fieldset name="add">
           <legend>Add Miner</legend>
           <form action="{{ url_for('add_miner') }}" method="POST">
@@ -46,9 +62,17 @@
               </div>
           </form>
       </fieldset>
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+
     </div>
-    <div></div>
-    <div>
+    <div class="col"></div>
+    <div class="col">
         <fieldset name="total_hashrate" style="height:130px">
             <legend>Total hashrate per model (5s)</legend>
             <ul>
@@ -56,149 +80,162 @@
                     <li><u>{{ model }}:</u> <strong>{{ total_hash_rate_per_model[model] }}</strong>
                     </li>
                 {%- endfor %}
+				
+				
+				
+				{%- for model in total_miner_info|sort %}
+					{% if total_miner_info[model].sum > 0 %} 
+                    <li><strong><u>{{ model }}:</u></strong>
+					All:{{ total_miner_info[model].sum}}
+					Error:{{ total_miner_info[model].err}}
+					Warning:{{ total_miner_info[model].war}}
+					OK:{{ total_miner_info[model].ok}}
+					Offline:{{ total_miner_info[model].offline}}
+                    </li>
+					{% endif %}
+                {%- endfor %}
+
             </ul>
         </fieldset>
     </div>
 </div>
 
-<br>
+
+<br/>
+
+
+
 {%- with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
-            <div class="{{ category }}">
-                <strong>{{ message }}</strong>
-            </div>
+
+<div class="row">
+<div class="col">
+		<div class="alert {{ category }} alert-dismissible fade show" role="alert">
+  <strong>{{ category }}</strong> {{ message }}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+</div>
+</div>
         {% endfor %}
     {% endif %}
 {%- endwith %}
 
+
+
+
+
 {%- if inactive_miners %}
+<div class="row">
+<div class="col">
+
+
+<p>
+  <a class="btn btn-primary btn-success" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+    In-active Miners ({{ inactive_miners|length }})
+  </a>
+</p>
+
+
+<div class="collapse" id="collapseExample">
     <fieldset name="inactive_miner_list">
         <legend>In-active Miners ({{ inactive_miners|length }})</legend>
-        <table style="width:100%">
+        <table class="table table-bordered tablesorter" id="myTable2">
+			<thead class="thead-dark">
             <tr>
-                <th>IP Address</th>
-                <th>Model</th>
-                <th>Remarks</th>
-                <th>Status</th>
-                <th>Remove</th>
+                <th class="text-success">IP Address</th>
+                <th class="text-success">Model</th>
+                <th class="text-success">Remarks</th>
+                <th class="text-success">Status</th>
+                <th class="text-success">Remove</th>
             </tr>
+			</thead>
             {%- for inactive_miner in inactive_miners|sort(attribute='ip') %}
                 <tr>
-                    <td><a target="_blank" href="http://{{ inactive_miner.ip }}">{{ inactive_miner.ip }}</a></td>
+                    <td><a target="_blank" href="http://{{ inactive_miner.ip }}" class="text-success">{{ inactive_miner.ip }}</a></td>
                     <td>{{ inactive_miner.model.model }}</td>
                     <td>{{ inactive_miner.remarks }}</td>
                     <td>Error: Check connection or IP Address</td>
-                    <td><a href={{ url_for('delete_miner', id=inactive_miner.id) }}><img src="/static/images/assets/remove.png"></img></a></td>
+                    <td><a href={{ url_for('delete_miner', ip=inactive_miner.ip) }} class="text-success"><img src="/static/images/assets/remove.png"></img></a></td>
                 </tr>
             {%- endfor %}
         </table>
     </fieldset>
+</div>	
+	
+	
+	
+</div>
+</div>
 {%- endif %}
 
-<br>
 
+<br/>
+</div>
+
+<div class="row">
+<div class="col">
 <fieldset name="active_miner_list">
-    <legend>Active Miners ({{ active_miners|length }})</legend>
-    <table style="width:100%">
+    <legend>Active Miners ({{ miners|length }})</legend>
+    <table  class="table table-bordered"  id="myTable1">
+	<thead class="thead-dark">
         <tr>
-            <th>IP Address</th>
-            <th>Worker</th>
-            <th>Model</th>
-            <th>Remarks</th>
-            <th title="'O' means OK">Chips (Os)</th>
-            <th title="'X' means defective">Chips (Xs)</th>
-            <th title="'-' means instability of the power supply voltage or the defective hash board">Chips (-)</th>
-            <th>Chip Temp(C)</th>
-            <th>Fan speeds (rpm)</th>
-            <th>Hashrate (5s)</th>
-            <th>HW Error Rate %</th>
-            <th>Uptime</th>
-            <th>Status</th>
+            <th class="text-success">IP Address</th>
+            <th class="text-success">Worker</th>
+            <th class="text-success">Model</th>
+            <th class="text-success">Remarks </th>
+            <th title="'O' means OK" class="text-success">(Os)</th>
+            <th title="'X' means defective" class="text-success">(Xs)</th>
+            <th title="'-' means instability of the power supply voltage or the defective hash board" class="text-success">(-)</th>
+            <th class="text-success">Chip Temp(C)</th>
+            <th class="text-success">Fan speeds (rpm)</a></th>
+            <th class="text-success">Hashrate (5s)</th>
+            <th class="text-success">HW Error Rate %</th>
+            <th class="text-success">Uptime</th>
+            <th class="text-success">Status</th>
+            <th class="text-success">Last</th>
             <!--<th>JSON Info</th>-->
             <th>Remove</th>
         </tr>
-        {%- for active_miner in active_miners|sort(attribute='ip') %}
-            <tr{%- if active_miner.ip in miner_errors %} class="error"{%- endif %}>
-                <td><a target="_blank" href="http://{{ active_miner.ip }}">{{ active_miner.ip }}</a></td>
-                <td>{{ workers[active_miner.ip] }}</td>
-                <td title="{{ active_miner.model.description }}">{{ active_miner.model.model }}</td>
-                <td>{{ active_miner.remarks }}</td>
-                <td>{{ miner_chips[active_miner.ip]['status']['Os'] }}</td>
-                <td>{{ miner_chips[active_miner.ip]['status']['Xs'] }}</td>
-                <td>{{ miner_chips[active_miner.ip]['status']['-'] }}</td>
-                <td>{{ temperatures[active_miner.ip] }}</td>
-                <td>{{ fans[active_miner.ip].speeds }}</td>
-                <td>{{ hash_rates[active_miner.ip] }}</td>
-                <td>{{ hw_error_rates[active_miner.ip] }}</td>
-                <td>{{ uptimes[active_miner.ip] }}</td>
-                <td title="{%- if active_miner.ip in miner_errors %}{{ miner_errors[active_miner.ip] }}{%- endif %}">
-                    {%- if active_miner.ip in miner_errors %}Check your miner{%- else %}OK{%- endif %}</td>
-                <!--<td><a target="_blank" href="/{{ active_miner.ip }}/summary">Summary</a> |
-                    <a target="_blank" href="/{{ active_miner.ip }}/pools">Pools</a> |
-                    <a target="_blank" href="/{{ active_miner.ip }}/stats">Stats</a></td>-->
-                <td><a href={{ url_for('delete_miner', id=active_miner.id) }}><img src="/static/images/assets/remove.png"></img></a></td>
+		</thead>
+  	
+		
+        {%- for active_miner2 in miners|sort(attribute='ip') %}
+            <tr{% if active_miner2.ip in miner_errors %} class="error"{% endif %}>
+                <td><a target="_blank" href="http://{{ active_miner2.ip }}" class="text-success">{{ active_miner2.ip }}</a></td>
+                <td>{{ active_miner2.worker }}</td>
+                <td>{{ active_miner2.model.model }}</td>
+                <td>{{ active_miner2.remarks }}</td>
+                <td>{{ active_miner2.chipsOs }}</td>
+                <td>{{ active_miner2.chipsXs }}</td>
+                <td>{{ active_miner2.chipsl }}</td>
+                <td>{{ active_miner2.tem }}</td>
+                <td>{{ active_miner2.fan }}</td>
+                <td>{{ active_miner2.hash }}</td>
+                <td>{{ active_miner2.hwerorr }}</td>
+                <td>{{ active_miner2.uptime }}</td>
+                <td title="{%- if active_miner2.ip in miner_errors %}{{ miner_errors[active_miner2.ip] }}{%- endif %}">
+                    {%- if active_miner2.ip in miner_errors %}Check your miner{%- else %}OK{%- endif %}</td>
+				<td>{{ active_miner2.last }}</td>	
+                <!--<td>
+				<a target="_blank" href="/{{ active_miner2.ip }}/summary">Summary</a> |
+                    <a target="_blank" href="/{{ active_miner2.ip }}/pools">Pools</a> |
+                    <a target="_blank" href="/{{ active_miner2.ip }}/stats">Stats</a>
+				</td>-->
+                <td><a href={{ url_for('delete_miner', ip=active_miner2.ip) }}><img src="/static/images/assets/remove.png"></img></a></td>
             </tr>
-        {%- endfor %}
+        {%- endfor %}		
     </table>
 </fieldset>
+</div>
+</div>
 
-<br>
-</i>
-<!-- Fork me on GitHub-->
-<a target="_blank" href="https://github.com/anselal/antminer-monitor"><img
-        style="position: absolute; top: 0; right: 0; border: 0;"
-        src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67"
-        alt="Fork me on GitHub"
-        data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
-<i>Generated in {{ loading_time }} seconds. Source code <a target="_blank"
-                                                           href="https://github.com/anselal/antminer-monitor">here</a>.
+<br/>
+
+
     <script>
-        CoinWidgetCom.go({
-
-            /* make sure you update the wallet_address or you will not get your donations */
-            wallet_address: "1HYCBovF6mqqKMyG4m2DQxXpdKmogK4Wuw"
-
-            , currency: "bitcoin"
-            , counter: "hide"
-            , alignment: "br"
-            , qrcode: true
-            , auto_show: false
-            , lbl_button: "Donate"
-            , lbl_address: "Donate Bitcoin to this Address:"
-            , lbl_count: "donations"
-            , lbl_amount: "BTC"
-        });
-        CoinWidgetCom.go({
-
-            /* make sure you update the wallet_address or you will not get your donations */
-            wallet_address: "LLrjq6nRokS74yPMspitHkXv4nLtEyebNW"
-
-            , currency: "litecoin"
-            , counter: "hide"
-            , alignment: "ac"
-            , qrcode: true
-            , auto_show: false
-            , lbl_button: "Donate"
-            , lbl_address: "Donate Litecoin to this Address:"
-            , lbl_count: "donations"
-            , lbl_amount: "LTC"
-        });
-        CoinWidgetCom.go({
-
-            /* make sure you update the wallet_address or you will not get your donations */
-            wallet_address: "XuEnZtsCmWcDwKVe82wQddsfwUifXyeRoQ"
-
-            , currency: "dash"
-            , counter: "hide"
-            , alignment: "bl"
-            , qrcode: true
-            , auto_show: false
-            , lbl_button: "Donate"
-            , lbl_address: "Donate Dash to this Address:"
-            , lbl_count: "donations"
-            , lbl_amount: "DASH"
-        });
         (function countdown(remaining) {
             if(remaining === 0)
                 location.reload(true);
@@ -206,8 +243,36 @@
                 document.getElementById('countdown').innerHTML = 'Refresh in: ' + remaining + ' sec';
                 setTimeout(function(){ countdown(remaining - 1); }, 1000);
             }
-        })(120);
+        })(300);
     </script>
     <!-- https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=dash:XiXwTjyN8DAsQaRh2pcFVyVSbXvk6Ph6ro?amount=0.001-->
+
+
+
+	    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<!--     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+	
+	<script src="{{ url_for('static', filename='js/jquery.tablesorter.min.js')}}"></script>
+	<script src="{{ url_for('static', filename='js/jquery.tablesorter.widgets.min.js')}}"></script>
+
+	<script>
+	$(function(){
+		$('table').tablesorter({
+			usNumberFormat : false,
+			sortReset      : true,
+			sortRestart    : true
+		});
+	});
+	</script>	
+	
+
+
+
+
 </body>
 </html>

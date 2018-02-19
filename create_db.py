@@ -1,4 +1,4 @@
-from app.models import MinerModel, Settings
+from app.models import Miner, MinerModel, Settings
 from app import db
 from sqlalchemy.exc import IntegrityError
 
