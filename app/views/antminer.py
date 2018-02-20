@@ -55,6 +55,13 @@ def miners():
 #    hash_rates = {}
     hw_error_rates = {}
     uptimes = {}
+    miner_hashrate = {"L3+": 504,
+                       "S7": 4.5,
+                       "S9": 13.5,
+                       "D3": 17,
+                       "T9": 12.5,
+                       "A3": 815,
+                       "L3": 250,}
     total_miner_info = {"L3+": {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
                         "S7":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
                         "S9":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
@@ -96,8 +103,6 @@ def miners():
             temps = temps.split(',')
         else:
             temps = ['0']
-
-        print("[WARNING] chips are defective on miner '{}'.".format(temps))
         
         if int(Xs) > 0:
             error_message = "[WARNING] '{}' chips are defective on miner '{}'.".format(Xs, miner.ip)
@@ -124,6 +129,8 @@ def miners():
 #            flash(error_message, "alert-warning")
             total_miner_info[miner.model.model]["war"] += 1
             errors = True
+            
+        
         if errors == False:
            total_miner_info[miner.model.model]["ok"] += 1
         ghs5s = miner.hash
@@ -133,7 +140,13 @@ def miners():
 #        value, unit = update_unit_and_value(float(ghs5s), total_hash_rate_per_model[miner.model.model]['unit'])
 #        hash_rates.update({miner.ip: "{:3.2f} {}".format(value, unit)})
         total_hash_rate_per_model[miner.model.model]["value"] += float(ghs5s)
-        
+        check_rate = (float(ghs5s) / miner_hashrate[miner.model.model]) * 100
+        if (check_rate < 80) and (check_rate != 0):
+            error_message = "[WARNING] Low Hashrate '{}'.".format(miner.ip)
+            logger.warning(error_message)
+#            flash(error_message, "alert-warning")
+            total_miner_info[miner.model.model]["war"] += 1
+            errors = True    
         
         
         
@@ -184,7 +197,7 @@ def add_miner():
 
     try:
         miner = Miner(ip=miner_ip, model_id=miner_model_id, remarks=miner_remarks, 
-	                worker = '0',
+                    worker = '0',
                     chipsOs = '0', 
                     chipsXs = '0', 
                     chipsl = '0', 
@@ -195,10 +208,10 @@ def add_miner():
                     uptime = '0', 
                     online = '0', 
                     last = '0')
-		
-		
-		
-		
+        
+        
+        
+        
         db.session.add(miner)
         db.session.commit()
 #        flash("Miner with IP Address {} added successfully".format(miner.ip), "alert-success")

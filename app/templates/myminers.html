@@ -203,7 +203,7 @@
   	
 		
         {%- for active_miner2 in miners|sort(attribute='ip') %}
-            <tr{% if active_miner2.ip in miner_errors %} class="error"{% endif %}>
+            <tr{% if active_miner2.ip in miner_errors %} class="table-danger"{% endif %}>
                 <td><a target="_blank" href="http://{{ active_miner2.ip }}" class="text-success">{{ active_miner2.ip }}</a></td>
                 <td>{{ active_miner2.worker }}</td>
                 <td>{{ active_miner2.model.model }}</td>
@@ -224,7 +224,7 @@
                     <a target="_blank" href="/{{ active_miner2.ip }}/pools">Pools</a> |
                     <a target="_blank" href="/{{ active_miner2.ip }}/stats">Stats</a>
 				</td>-->
-                <td><a href={{ url_for('delete_miner', ip=active_miner2.ip) }}><img src="/static/images/assets/remove.png"></img></a></td>
+				<td><a href={{ url_for('delete_miner', ip=active_miner2.ip) }}><img src="/static/images/assets/remove.png"></img></a></td>
             </tr>
         {%- endfor %}		
     </table>
