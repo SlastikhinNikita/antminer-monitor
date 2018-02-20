@@ -1,9 +1,3 @@
-<p>
-    <a href="https://twitter.com/intent/follow?screen_name=AntminerMonitor">
-        <img src="https://img.shields.io/twitter/follow/AntminerMonitor.svg?style=social" alt="follow on Twitter">
-    </a>
-</p>
-
 # Antminer Monitor
 
 Lite Python based Antminer Monitor !!!
@@ -14,10 +8,6 @@ Lite Python based Antminer Monitor !!!
   - Get in-app notifications about miner errors (needs refresh)
   - Log errors to file
   - Display total hashrate grouped by Model
-
-### Screenshot
-
-![Alt text](/app/static/images/screenshot_v0.3.0.png?raw=true "Screenshot v0.3.0")
 
 ### Requirements
 
@@ -83,18 +73,3 @@ $ python -m pip install -r requirements.txt
 ```sh
 $ python update_db.py
 ```
-
-### Donations
-
-  - BTC: `1HYCBovF6mqqKMyG4m2DQxXpdKmogK4Wuw`
-  - LTC: `LLrjq6nRokS74yPMspitHkXv4nLtEyebNW`
-  - DASH: `XuEnZtsCmWcDwKVe82wQddsfwUifXyeRoQ`
-  - ETH: `0x5bD8813Da5148fbc841bB18b9411fF72EdC8e10a`
-
-### Referral
-
-  - Get a Ledger Nano S and protect your cryptocurrencies
-<a href="https://www.ledgerwallet.com/r/3bf5?path=/products/ledger-nano-s&tracker=AntminerMonitor"><img width=728 height=90 alt="Ledger Nano S - The secure hardware wallet" src="https://www.ledgerwallet.com/images/promo/nano-s/ledger_nano-s_7-2-8x9-0.jpg"></a>
-
-  - Listen to your favorite radio stations and earn BRO cryptocurrency !!!
-<a href="http://bitrad.io/?ref=59452"><img src="http://bitrad.io/images/BRO728x90.gif"></a>
