@@ -112,7 +112,7 @@
                     <td>{{ inactive_miner.model.model }}</td>
                     <td>{{ inactive_miner.remarks }}</td>
                     <td>Error: Check connection or IP Address</td>
-                    <td><a href={{ url_for('delete_miner', ip=inactive_miner.ip) }} class="text-success"><img src="/static/images/assets/remove.png"></img></a></td>
+                    <td class="text-center"><a href={{ url_for('delete_miner', ip=inactive_miner.ip) }} class="text-success"><img src="/static/images/assets/remove.png"></img></a></td>
                 </tr>
             {%- endfor %}
         </table>
@@ -151,6 +151,7 @@
             <th class="text-success">Status</th>
             <th class="text-success">Last</th>
             <!--<th>JSON Info</th>-->
+            <th>Reboot</th>
             <th>Remove</th>
         </tr>
 		</thead>
@@ -178,7 +179,8 @@
                     <a target="_blank" href="/{{ active_miner2.ip }}/pools">Pools</a> |
                     <a target="_blank" href="/{{ active_miner2.ip }}/stats">Stats</a>
 				</td>-->
-				<td><a href={{ url_for('delete_miner', ip=active_miner2.ip) }}><img src="/static/images/assets/remove.png"></img></a></td>
+				<td class="text-center"><a href={{ url_for('reboot_miner', ip=active_miner2.ip) }}><img src="/static/images/assets/reboot.png"></img></a></td>
+				<td class="text-center"><a href={{ url_for('delete_miner', ip=active_miner2.ip) }}><img src="/static/images/assets/remove.png"></img></a></td>
             </tr>
         {%- endfor %}		
     </table>

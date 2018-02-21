@@ -21,11 +21,8 @@ from datetime import timedelta,datetime
 import threading
 import ast
 import time
-from  flask_wtf import Form
-from wtforms.fields import StringField, FormField, SubmitField
-from wtforms.validators import DataRequired
-from wtforms import FieldList
-from wtforms import Form as NoCsrfForm
+import subprocess
+
 
 
 
@@ -89,7 +86,7 @@ def miners():
     miner_errors = {}
     
     for miner in miners:
-
+        errors = False
         miner_stats = Miner.query.filter_by(ip=miner.ip).first()
         total_miner_info[miner.model.model]["sum"] += 1
         if miner_stats.online == '0':
@@ -110,7 +107,6 @@ def miners():
             temps = temps.split(',')
         else:
             temps = ['0']
-        
         if int(Xs) > 0:
             error_message = "[WARNING] '{}' chips are defective on miner '{}'.".format(Xs, miner.ip)
             logger.warning(error_message)
@@ -118,8 +114,7 @@ def miners():
             errors = True
             miner_errors.update({miner.ip: error_message})
             total_miner_info[miner.model.model]["war"] += 1
-        if int(Os) + int(Xs) < total_chips:
-        
+        if (int(Os) + int(Xs) < total_chips) and (int(Os) + int(Xs) != 0):        
             error_message = "[ERROR] ASIC chips are missing from miner '{}'. Your Antminer '{}' has '{}/{} chips'." \
                     .format(miner.ip,
                             miner.model.model,
@@ -239,14 +234,20 @@ def addminers():
 
 	
 	
-@app.route('/reboot', methods=['POST'])
-def reboot_miner():
-    miner_ip = request.form['ip']
-    os.system("some_command with args")
+@app.route('/reboot/<ip>')
+def reboot_miner(ip):
+    
+    cmd = 'root@{}'.format(ip)
 
-# ssh root@10.98.1.252 "/sbin/reboot"
-
- 
+    print(cmd)
+  	
+    try:
+        subprocess.Popen(["ssh",cmd,"/sbin/reboot"])
+    except subprocess.CalledProcessError as e:
+        print('Команда \n> {}\nзавершилась с кодом {}'.format(e.cmd, e.returncode))
+	
+	
+	
     return redirect(url_for('miners'))
 	
 	
