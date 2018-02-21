@@ -21,6 +21,13 @@ from datetime import timedelta,datetime
 import threading
 import ast
 import time
+from  flask_wtf import Form
+from wtforms.fields import StringField, FormField, SubmitField
+from wtforms.validators import DataRequired
+from wtforms import FieldList
+from wtforms import Form as NoCsrfForm
+
+
 
 class ClockThread(threading.Thread):
     def __init__(self,interval):
@@ -185,18 +192,30 @@ def miners():
                            )
 
 
-@app.route('/add', methods=['POST'])
-def add_miner():
-    miner_ip = request.form['ip']
-    miner_model_id = request.form.get('model_id')
-    miner_remarks = request.form['remarks']
+					   
+						   
 
-    # exists = Miner.query.filter_by(ip="").first()
-    # if exists:
-    #    return "IP Address already added"
+@app.route('/add', methods=['GET', 'POST'])
+def add_views():
+    # always "blindly" load the user
+    miner = Miner.query.first()
+    models = MinerModel.query.all()
+    # forms loaded through db relation
+    return render_template('add.html', 
+                           models=models)
 
-    try:
-        miner = Miner(ip=miner_ip, model_id=miner_model_id, remarks=miner_remarks, 
+						   
+@app.route('/addminers', methods=['GET', 'POST'])
+def addminers():
+    """Mass add miners..."""
+    miners_model_id = request.form['model_id']
+
+    miners_list = request.form['ip_list']
+    miners_list = miners_list.split('\n')
+
+    for miner_ip in miners_list:	
+        try:
+            miner = Miner(ip=miner_ip, model_id=miners_model_id, remarks='', 
                     worker = '0',
                     chipsOs = '0', 
                     chipsXs = '0', 
@@ -208,18 +227,34 @@ def add_miner():
                     uptime = '0', 
                     online = '0', 
                     last = '0')
-        
-        
-        
-        
-        db.session.add(miner)
-        db.session.commit()
-#        flash("Miner with IP Address {} added successfully".format(miner.ip), "alert-success")
-    except IntegrityError as e:
-        db.session.rollback()
-#        flash("IP Address {} already added".format(miner_ip), "alert-danger")
+            db.session.add(miner)
+            db.session.commit()
+            flash("Miner with IP Address {} added successfully".format(miner.ip), "alert-success")
+        except IntegrityError as e:
+            db.session.rollback()
+            flash("IP Address {} already added".format(miner_ip), "alert-danger")
+    return redirect(url_for('add_views'))
 
+	
+
+	
+	
+@app.route('/reboot', methods=['POST'])
+def reboot_miner():
+    miner_ip = request.form['ip']
+    os.system("some_command with args")
+
+# ssh root@10.98.1.252 "/sbin/reboot"
+
+ 
     return redirect(url_for('miners'))
+	
+	
+	
+	
+	
+	
+	
 
 
 @app.route('/delete/<ip>')
@@ -238,11 +273,7 @@ def delete_miner(ip):
 
 
 
-@app.route('/test')
-def test():
-    """Add two numbers server side, ridiculous but well..."""
-    a = get_stats('95.165.134.103')
-    return render_template('test.html',version=a)
+
 
 
 t = ClockThread(1)

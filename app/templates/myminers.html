@@ -25,54 +25,6 @@
 <div class="container">
     <div class="row">
     <div class="col">
-
-	
-	
-	
-	
-	
-      <fieldset name="add">
-          <legend>Add Miner</legend>
-          <form action="{{ url_for('add_miner') }}" method="POST">
-              <div class="addminer_container">
-                  <div>
-                      <label for="ip">IP Address: </label>
-                  </div>
-                  <div>
-                      <input required type="text" name="ip">
-                  </div>
-                  <div>
-                      <label for="model_id">Model: </label>
-                  </div>
-                  <div>
-                      <select required name="model_id">
-                          <option disabled selected value> -- select an option --</option>
-                          {%- for model in models|sort(attribute="model") %}
-                              <option value="{{ model.id }}">{{ model.model }} - {{ model.description }}</option>
-                          {%- endfor %}
-                      </select>
-                  </div>
-                  <div>
-                      <label for="remarks">Remarks: </label>
-                  </div>
-                  <div>
-                      <input type="text" name="remarks">
-                  </div>
-                  <p><input type="submit" value="Add model"></p>
-              </div>
-          </form>
-      </fieldset>
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-
-    </div>
-    <div class="col"></div>
-    <div class="col">
         <fieldset name="total_hashrate" style="height:130px">
             <legend>Total hashrate per model (5s)</legend>
             <ul>
@@ -123,8 +75,10 @@
     {% endif %}
 {%- endwith %}
 
-
-
+<div class="row">
+<div class="col"> <br/>
+</div>
+</div>
 
 
 {%- if inactive_miners %}
