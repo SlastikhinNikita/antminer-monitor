@@ -215,7 +215,7 @@ def addminers():
     miners_model_id = request.form['model_id']
 
     miners_list = request.form['ip_list']
-    miners_list = miners_list.split('\n')
+    miners_list = miners_list.split('\r\n')
 
     
     
