@@ -96,7 +96,7 @@
 <div class="collapse" id="collapseExample">
     <fieldset name="inactive_miner_list">
         <legend>In-active Miners ({{ inactive_miners|length }})</legend>
-        <table class="table table-bordered js-dynamitable">
+        <table class="table table-bordered" id="liveFilter1">
 			<thead class="thead-dark">
             <tr>
                 <th class="text-success">IP Address</th>
@@ -133,7 +133,7 @@
 <div class="col">
 <fieldset name="active_miner_list">
     <legend>Active Miners ({{ miners|length }})</legend>
-    <table  class="table table-bordered"  id="myTable1">
+    <table class="table" id="liveFilter2">
 	<thead class="thead-dark">
         <tr>
             <th class="text-success">IP Address</th>
@@ -226,6 +226,8 @@
 		});
 	});
 	</script>	
+<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js'></script>
 
+    <script  src="{{ url_for('static', filename='js/index.js')}}"></script>
 </body>
 </html>
