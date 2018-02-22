@@ -17,7 +17,7 @@ class CgminerAPI(object):
         receive the response (and decode it).
         """
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)
+        sock.settimeout(4)
 
         try:
             sock.connect((self.host, self.port))

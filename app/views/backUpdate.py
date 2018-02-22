@@ -54,7 +54,6 @@ def updateRecords():
     for miner in miners:
         if Miner.query.filter_by(ip=miner.ip).first() is not None:
             miner_stats = get_stats(miner.ip)
-
             rec_last = str(datetime.now().strftime('%H:%M:%S %d/%m/%Y'))
             if miner_stats['STATUS'][0]['STATUS'] == 'error':
                 errors = True
