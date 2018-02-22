@@ -44,6 +44,15 @@ class ClockThread(threading.Thread):
 # e.g. update_unit_and_value(1024, "GH/s") => (1, "TH/s")
 
 
+def isgoodipv4(s):
+    pieces = s.split('.')
+    if len(pieces) != 4: return False
+    try: return all(0<=int(p)<256 for p in pieces)
+    except ValueError: return False
+
+
+
+
 
 @app.route('/')
 def miners():
@@ -187,8 +196,8 @@ def miners():
                            )
 
 
-					   
-						   
+                       
+                           
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_views():
@@ -199,7 +208,7 @@ def add_views():
     return render_template('add.html', 
                            models=models)
 
-						   
+                           
 @app.route('/addminers', methods=['GET', 'POST'])
 def addminers():
     """Mass add miners..."""
@@ -208,9 +217,12 @@ def addminers():
     miners_list = request.form['ip_list']
     miners_list = miners_list.split('\n')
 
-    for miner_ip in miners_list:	
-        try:
-            miner = Miner(ip=miner_ip, model_id=miners_model_id, remarks='', 
+    
+    
+    for miner_ip in miners_list:    
+        if isgoodipv4(miner_ip):
+            try:
+                miner = Miner(ip=miner_ip, model_id=miners_model_id, remarks='', 
                     worker = '0',
                     chipsOs = '0', 
                     chipsXs = '0', 
@@ -222,40 +234,42 @@ def addminers():
                     uptime = '0', 
                     online = '0', 
                     last = '0')
-            db.session.add(miner)
-            db.session.commit()
-            flash("Miner with IP Address {} added successfully".format(miner.ip), "alert-success")
-        except IntegrityError as e:
-            db.session.rollback()
-            flash("IP Address {} already added".format(miner_ip), "alert-danger")
+                db.session.add(miner)
+                db.session.commit()
+                flash("Miner with IP Address {} added successfully".format(miner.ip), "alert-success")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash("IP Address {} already added".format(miner_ip), "alert-danger")
+        else:
+            flash("IP: {} is not correct".format(miner_ip), "alert-danger")    
     return redirect(url_for('add_views'))
 
-	
+    
 
-	
-	
+    
+    
 @app.route('/reboot/<ip>')
 def reboot_miner(ip):
     
     cmd = 'root@{}'.format(ip)
 
     print(cmd)
-  	
+      
     try:
         subprocess.Popen(["ssh",cmd,"/sbin/reboot"])
     except subprocess.CalledProcessError as e:
-        print('Команда \n> {}\nзавершилась с кодом {}'.format(e.cmd, e.returncode))
-	
-	
-	
+        print('Command \n> {}\n is fail with error: {}'.format(e.cmd, e.returncode))
+    
+    
+    
     return redirect(url_for('miners'))
-	
-	
-	
-	
-	
-	
-	
+    
+    
+    
+    
+    
+    
+    
 
 
 @app.route('/delete/<ip>')
