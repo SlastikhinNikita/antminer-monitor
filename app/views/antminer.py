@@ -74,6 +74,7 @@ def miners():
                        "A3": 815,
                        "L3": 250,}
     total_miner_info = {"L3+": {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
+                        "All":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
                         "S7":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
                         "S9":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
                         "D3":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
@@ -174,8 +175,11 @@ def miners():
     # flash("WARNING !!! Check temperatures on your miner", "warning")
     # flash("ERROR !!!Check board(s) on your miner", "error")
 
-
-
+	
+    total_miner_info['All']["offline"] = sum(x['offline'] for x in total_miner_info.values())
+    total_miner_info['All']["err"] = sum(x['err'] for x in total_miner_info.values())
+    total_miner_info['All']["sum"] = sum(x['sum'] for x in total_miner_info.values())
+    total_miner_info['All']["war"] = sum(x['war'] for x in total_miner_info.values())
     total_hash_rate_per_model_temp = {}
     for key in total_hash_rate_per_model:
         value, unit = update_unit_and_value(total_hash_rate_per_model[key]["value"], total_hash_rate_per_model[key]["unit"])
@@ -220,17 +224,17 @@ def addminers():
         if isgoodipv4(miner_ip):
             try:
                 miner = Miner(ip=miner_ip, model_id=miners_model_id, remarks='', 
-                    worker = '0',
+                    worker = '',
                     chipsOs = '0', 
                     chipsXs = '0', 
                     chipsl = '0', 
                     tem = '0', 
-                    fan = '0', 
-                    hash = '0', 
-                    hwerorr = '0', 
-                    uptime = '0', 
+                    fan = '', 
+                    hash = '', 
+                    hwerorr = '', 
+                    uptime = '', 
                     online = '0', 
-                    last = '0')
+                    last = '')
                 db.session.add(miner)
                 db.session.commit()
                 flash("Miner with IP Address {} added successfully".format(miner.ip), "alert-success")
@@ -274,7 +278,7 @@ def reboot_miner(ip):
     
 
 
-@app.route('/delete/<ip>')
+@app.route('/delete/<ip>', methods=['POST'])
 def delete_miner(ip):
     try:
         miner = Miner.query.filter_by(ip=str(ip)).first()

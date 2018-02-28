@@ -37,7 +37,7 @@
 				
 				
 				{%- for model in total_miner_info|sort %}
-					{% if total_miner_info[model].sum > 0 %} 
+					{% if (total_miner_info[model].sum > 0) and (model != 'All') %} 
                     <li><strong><u>{{ model }}:</u></strong>
 					All:{{ total_miner_info[model].sum}}
 					Error:{{ total_miner_info[model].err}}
@@ -46,7 +46,21 @@
 					Offline:{{ total_miner_info[model].offline}}
                     </li>
 					{% endif %}
+		
                 {%- endfor %}
+				
+				{%- for model in total_miner_info|sort %}
+					{% if model == 'All' %} 
+					<li>All: <strong><u>{{ total_miner_info[model].sum}}</u></strong>
+					Error: <strong><u>{{ total_miner_info[model].err}}</u></strong>
+					Warning: <strong><u>{{ total_miner_info[model].war}}</u></strong>
+					OK: <strong><u>{{ total_miner_info[model].ok}}</u></strong>
+					Offline: <strong><u>{{ total_miner_info[model].offline}}</u></strong>
+                    </li>
+					{% endif %}					
+               {%- endfor %}				
+				
+				
 
             </ul>
         </fieldset>
@@ -102,7 +116,7 @@
 <div class="col">
 <fieldset name="active_miner_list">
     <legend>Active Miners ({{ miners|length }})</legend>
-    <table class="table table-bordered" 
+    <table id="table" class="table table-bordered" 
 					data-toggle="table"
 					data-search="true"
 					data-filter-control="true" 
@@ -136,7 +150,7 @@
 				class="table-danger"
 			{% elif active_miner2.ip in miner_wars %}
 				class="table-warning"
-			{% endif %}
+			{% endif %} id="tablerow{{ loop.index }}"
 			>
                 <td><a target="_blank" href="http://{{ active_miner2.ip }}" class="text-success">{{ active_miner2.ip }}</a></td>
                 <td>{{ active_miner2.worker }}</td>
@@ -166,9 +180,10 @@
                     <a target="_blank" href="/{{ active_miner2.ip }}/pools">Pools</a> |
                     <a target="_blank" href="/{{ active_miner2.ip }}/stats">Stats</a>
 				</td>-->
-				<td class="text-center"><a href="#!" onclick="send('{{active_miner2.ip}}')" class="text-success"><i class="material-icons">cached</i></a></td>
-				<td class="text-center" ><a href={{ url_for('delete_miner', ip=active_miner2.ip) }} class="text-danger"><i class="material-icons" onClick="javascript: window.alert('test');">delete_forever</i></a></td>
+				<td class="text-center"><a href="#!" onclick="send('reboot','{{active_miner2.ip}}','{{ loop.index }}')" class="text-success"><i class="material-icons">cached</i></a></td>
+				<td class="text-center"><a href="#!" onClick="send('delete','{{active_miner2.ip}}','{{ loop.index }}')" class="text-danger"><i class="material-icons">delete_forever</i></a></td>
             </tr>
+
         {%- endfor %}		
     </table>
 </fieldset>
@@ -214,12 +229,40 @@
 
 
   <script type="text/javascript">
-       function send(ip){
-	   var url = "/reboot/" + ip
-		$.post(url, function(data) {
+       function send(arr,ip,index){
+	   var url = ""
+	   
+switch(arr) {
+  case 'reboot':  
+  url = "/reboot/" + ip
+   		$.post(url, function(data) {
 		  alert('Команда на перезагрузку хоста ' + ip + ' отправлена.');
 		});
+    break;
+
+  case 'delete':  
+   url = "/delete/" + ip
+    
+	$.post(url, function(data) {
+		  alert('Хост ' + ip + ' удалён.'),
+		  document.getElementById("tablerow"+index).remove();
+		  ;
+		});
+    break;
+
+
+};
+	   
+
+		
+		
       };
+	  
+	  
+	  
+	  
+
+
   </script>
 
 
