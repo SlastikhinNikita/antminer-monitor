@@ -59,8 +59,6 @@ def miners():
     # Init variables
     miners = Miner.query.all()
     models = MinerModel.query.all()
-    active_miners = []
-    inactive_miners = []
     workers = {}
     miner_chips = {}
     temperatures = {}
@@ -93,6 +91,7 @@ def miners():
     
     errors = False
     miner_errors = {}
+    miner_wars = {}
     
     for miner in miners:
         errors = False
@@ -100,11 +99,9 @@ def miners():
         total_miner_info[miner.model.model]["sum"] += 1
         if miner_stats.online == '0':
             errors = True
-            inactive_miners.append(miner)
             total_miner_info[miner.model.model]["offline"] += 1
-        else:
-            active_miners.append(miner)
-            
+            error_message = "[ERROR] miner is OFFLINE."
+            miner_errors.update({miner.ip: error_message})
             
         chips_list = [int(y) for y in str(miner.model.chips).split(',')]
         total_chips = sum(chips_list)           
@@ -117,11 +114,11 @@ def miners():
         else:
             temps = ['0']
         if int(Xs) > 0:
-            error_message = "[WARNING] '{}' chips are defective on miner '{}'.".format(Xs, miner.ip)
+            error_message = "[WARNING] '{}' chips are defective on miner.".format(Xs)
             logger.warning(error_message)
 #            flash(error_message, "alert-warning")
             errors = True
-            miner_errors.update({miner.ip: error_message})
+            miner_wars.update({miner.ip: error_message})
             total_miner_info[miner.model.model]["war"] += 1
         if (int(Os) + int(Xs) < total_chips) and (int(Os) + int(Xs) != 0):        
             error_message = "[ERROR] ASIC chips are missing from miner '{}'. Your Antminer '{}' has '{}/{} chips'." \
@@ -135,7 +132,7 @@ def miners():
             miner_errors.update({miner.ip: error_message})
             total_miner_info[miner.model.model]["err"] += 1
         if int(max(temps)) >= 80:
-            error_message = "[WARNING] High temperatures on miner '{}'.".format(miner.ip)
+            error_message = "[WARNING] High temperatures on miner."
             logger.warning(error_message)
 #            flash(error_message, "alert-warning")
             total_miner_info[miner.model.model]["war"] += 1
@@ -153,12 +150,12 @@ def miners():
         total_hash_rate_per_model[miner.model.model]["value"] += float(ghs5s)
         check_rate = (float(ghs5s) / miner_hashrate[miner.model.model]) * 100
         if (check_rate < 80) and (check_rate != 0):
-            error_message = "[WARNING] Low Hashrate '{}'.".format(miner.ip)
+            error_message = "[WARNING] Low Hashrate."
             logger.warning(error_message)
 #            flash(error_message, "alert-warning")
             total_miner_info[miner.model.model]["war"] += 1
             errors = True    
-        
+            miner_wars.update({miner.ip: error_message})
         
         
         
@@ -188,11 +185,11 @@ def miners():
     return render_template('myminers.html',
                            version=__version__,
                            models=models,
-                           inactive_miners=inactive_miners,
                            miner_errors=miner_errors,
+                           miner_wars=miner_wars,
                            total_hash_rate_per_model=total_hash_rate_per_model_temp,
                            total_miner_info=total_miner_info,
-                           miners=active_miners,
+                           miners=miners,
                            )
 
 
@@ -291,5 +288,5 @@ def delete_miner(ip):
 
 
 
-t = ClockThread(1)
+t = ClockThread(10)
 t.start()

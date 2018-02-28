@@ -7,6 +7,7 @@ from app.views.antminer_json import (get_summary,
                                      )
 import re
 from datetime import timedelta, datetime
+from multiprocessing import Process
 
 def update_unit_and_value(value, unit):
     while value > 1024:
@@ -24,9 +25,10 @@ def update_unit_and_value(value, unit):
     return (value, unit)
 
 
-def updateRecords():
-    """Add two numbers server side, ridiculous but well..."""
-    miners = Miner.query.all()
+
+
+def getAndUpdate(miner):
+
     active_miners = []
     errors = False
 
@@ -51,66 +53,65 @@ def updateRecords():
                                 "A3": {"value": 0, "unit": "GH/s" },
                                 "L3": {"value": 0, "unit": "MH/s" },}
 
-    for miner in miners:
-        if Miner.query.filter_by(ip=miner.ip).first() is not None:
-            miner_stats = get_stats(miner.ip)
+    if Miner.query.filter_by(ip=miner.ip).first() is not None:
+        miner_stats = get_stats(miner.ip)
 #            print(miner_stats)
-            rec_last = str(datetime.now().strftime('%H:%M:%S %d/%m/%Y'))
-            if miner_stats['STATUS'][0]['STATUS'] == 'error':
-                errors = True
-                rec_ip = miner.ip
-                rec_worker = '0'
-                rec_model_id = miner.model_id
-                rec_remarks = miner.remarks
-                rec_chipsOs = '0'
-                rec_chipsXs = '0'
-                rec_chipsl = '0'
-                rec_tem = '0'
-                rec_fan = '0'
-                rec_hash = '0'
-                rec_hwerorr = '0'
-                rec_uptime = '0'
-                rec_online = '0'
-            else:
-                rec_ip=miner.ip
-                rec_online = '1'
+        rec_last = str(datetime.now().strftime('%H:%M:%S %d/%m/%Y'))
+        if miner_stats['STATUS'][0]['STATUS'] == 'error':
+            errors = True
+            rec_ip = miner.ip
+            rec_worker = '0'
+            rec_model_id = miner.model_id
+            rec_remarks = miner.remarks
+            rec_chipsOs = '0'
+            rec_chipsXs = '0'
+            rec_chipsl = '0'
+            rec_tem = '0'
+            rec_fan = '0'
+            rec_hash = '0'
+            rec_hwerorr = '0'
+            rec_uptime = '0'
+            rec_online = '0'
+        else:
+            rec_ip=miner.ip
+            rec_online = '1'
 
-                miner_pools = get_pools(miner.ip)
-                rec_worker = miner_pools['POOLS'][0]['User']
+            miner_pools = get_pools(miner.ip)
+            rec_worker = miner_pools['POOLS'][0]['User']
 
-                rec_model_id = miner.model_id
+            rec_model_id = miner.model_id
 
-                rec_remarks = miner.remarks
-
-
-                asic_chains = [miner_stats['STATS'][1][chain] for chain in miner_stats['STATS'][1].keys() if
-                               "chain_acs" in chain]
-                O = [str(o).count('o') for o in asic_chains]
-                rec_chipsOs = sum(O)
-                X = [str(x).count('x') for x in asic_chains]
-                rec_chipsXs = sum(X)
-                _dash_chips = [str(x).count('-') for x in asic_chains]
-                rec_chipsl = sum(_dash_chips)
-
-                rec_tem = [int(miner_stats['STATS'][1][temp]) for temp in
-                         sorted(miner_stats['STATS'][1].keys(), key=lambda x: str(x)) if
-                         re.search(miner.model.temp_keys + '[0-9]', temp) if miner_stats['STATS'][1][temp] != 0]
-
-                rec_fan = [miner_stats['STATS'][1][fan] for fan in
-                              sorted(miner_stats['STATS'][1].keys(), key=lambda x: str(x)) if
-                              re.search("fan" + '[0-9]', fan) if miner_stats['STATS'][1][fan] != 0]
+            rec_remarks = miner.remarks
 
 
-                ghs5s = float(str(miner_stats['STATS'][1]['GHS 5s']))
-                value, unit = update_unit_and_value(ghs5s, total_hash_rate_per_model[miner.model.model]['unit'])
-                rec_hash = "{:3.2f} {}".format(value, unit)
+            asic_chains = [miner_stats['STATS'][1][chain] for chain in miner_stats['STATS'][1].keys() if
+                            "chain_acs" in chain]
+            O = [str(o).count('o') for o in asic_chains]
+            rec_chipsOs = sum(O)
+            X = [str(x).count('x') for x in asic_chains]
+            rec_chipsXs = sum(X)
+            _dash_chips = [str(x).count('-') for x in asic_chains]
+            rec_chipsl = sum(_dash_chips)
 
-                rec_hwerorr = miner_stats['STATS'][1]['Device Hardware%']
+            rec_tem = [int(miner_stats['STATS'][1][temp]) for temp in
+                    sorted(miner_stats['STATS'][1].keys(), key=lambda x: str(x)) if
+                    re.search(miner.model.temp_keys + '[0-9]', temp) if miner_stats['STATS'][1][temp] != 0]
 
-                rec_uptime = timedelta(seconds=miner_stats['STATS'][1]['Elapsed'])
+            rec_fan = [miner_stats['STATS'][1][fan] for fan in
+                        sorted(miner_stats['STATS'][1].keys(), key=lambda x: str(x)) if
+                        re.search("fan" + '[0-9]', fan) if miner_stats['STATS'][1][fan] != 0]
 
 
-            try:
+            ghs5s = float(str(miner_stats['STATS'][1]['GHS 5s']))
+            value, unit = update_unit_and_value(ghs5s, total_hash_rate_per_model[miner.model.model]['unit'])
+            rec_hash = "{:3.2f} {}".format(value, unit)
+
+            rec_hwerorr = miner_stats['STATS'][1]['Device Hardware%']
+
+            rec_uptime = timedelta(seconds=miner_stats['STATS'][1]['Elapsed'])
+
+
+        try:
 #                if Miner.query.filter_by(ip=miner.ip).first() is None:
 #                    record = Temp(ip=rec_ip, \
 #                                  worker=str(rec_worker), \
@@ -130,26 +131,44 @@ def updateRecords():
 #                    db.session.commit()
 
 #                else:
-                record = Miner.query.filter_by(ip=rec_ip).first()
-                record.worker = str(rec_worker)
-                record.model_id = rec_model_id
-                record.remarks = str(rec_remarks)
-                record.chipsOs = str(rec_chipsOs)
-                record.chipsXs = str(rec_chipsXs)
-                record.chipsl = str(rec_chipsl)
-                record.tem = str(rec_tem)
-                record.fan = str(rec_fan)
-                record.hash = str(rec_hash)
-                record.hwerorr = str(rec_hwerorr)
-                record.uptime = str(rec_uptime)
-                record.online = str(rec_online)
-                record.last = str(rec_last)
-                db.session.commit()
-                error_message = "IP Address {} updated".format(rec_ip)
+            record = Miner.query.filter_by(ip=rec_ip).first()
+            record.worker = str(rec_worker)
+            record.model_id = rec_model_id
+            record.remarks = str(rec_remarks)
+            record.chipsOs = str(rec_chipsOs)
+            record.chipsXs = str(rec_chipsXs)
+            record.chipsl = str(rec_chipsl)
+            record.tem = str(rec_tem)
+            record.fan = str(rec_fan)
+            record.hash = str(rec_hash)
+            record.hwerorr = str(rec_hwerorr)
+            record.uptime = str(rec_uptime)
+            record.online = str(rec_online)
+            record.last = str(rec_last)
+            db.session.commit()
+            error_message = "IP Address {} updated".format(rec_ip)
 #                    flash(error_message, "alert-success")
-                logger.info(error_message)
-            except:
-                db.session.rollback()
-                error_message = "[ERROR] Some shit happen!"
-                logger.info(error_message)
+            logger.info(error_message)
+        except:
+            db.session.rollback()
+            error_message = "[ERROR] Some shit happen!"
+            logger.info(error_message)
 #                flash(error_message, "alert-danger")
+
+    
+    
+    
+    
+def updateRecords():
+    """Add two numbers server side, ridiculous but well..."""
+    miners = Miner.query.all()
+    i = 0
+
+    for miner in miners:
+        a = getAndUpdate(miner)
+        p = Process(target=a, args=(i,))
+        p.start()
+        i = i + 1
+    
+    
+
