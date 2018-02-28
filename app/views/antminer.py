@@ -245,7 +245,7 @@ def addminers():
 
     
     
-@app.route('/reboot/<ip>')
+@app.route('/reboot/<ip>', methods=['POST'])
 def reboot_miner(ip):
     
     cmd = 'root@{}'.format(ip)
@@ -258,11 +258,16 @@ def reboot_miner(ip):
         print('Command \n> {}\n is fail with error: {}'.format(e.cmd, e.returncode))
     
     
-    
+
     return redirect(url_for('miners'))
     
     
     
+#@app.route('/_get_data/', methods=['POST'])
+#def _get_data():
+#    myList = ['Element1', 'Element2', 'Element3']
+
+#    return jsonify({'data': render_template('response.html', myList=myList)})
     
     
     

@@ -76,6 +76,15 @@
     {% endif %}
 {%- endwith %}
 
+
+
+
+
+
+
+
+
+
 <div class="row">
 <div class="col"> <br/>
 </div>
@@ -83,6 +92,11 @@
 
 <br/>
 </div>
+
+
+
+
+
 
 <div class="row">
 <div class="col">
@@ -152,7 +166,7 @@
                     <a target="_blank" href="/{{ active_miner2.ip }}/pools">Pools</a> |
                     <a target="_blank" href="/{{ active_miner2.ip }}/stats">Stats</a>
 				</td>-->
-				<td class="text-center"><i class="material-icons" onclick="send({{active_miner2.ip}})">cached</i></td>
+				<td class="text-center"><a href="#!" onclick="send('{{active_miner2.ip}}')" class="text-success"><i class="material-icons">cached</i></a></td>
 				<td class="text-center" ><a href={{ url_for('delete_miner', ip=active_miner2.ip) }} class="text-danger"><i class="material-icons" onClick="javascript: window.alert('test');">delete_forever</i></a></td>
             </tr>
         {%- endfor %}		
@@ -199,20 +213,14 @@
 
 
 
-
-
-
-<script type="text/javascript">
-    function send(ip){
-	var url = "/reboot/";
-
-        $.ajax({
-          type: "POST",
-          url: url,
-          data: {ip: ip},
-	    });
-  };
-</script>
+  <script type="text/javascript">
+       function send(ip){
+	   var url = "/reboot/" + ip
+		$.post(url, function(data) {
+		  alert('Команда на перезагрузку хоста ' + ip + ' отправлена.');
+		});
+      };
+  </script>
 
 
 </body>
