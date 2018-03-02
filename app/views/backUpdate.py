@@ -77,8 +77,11 @@ def getAndUpdate(miner):
             rec_online = '1'
 
             miner_pools = get_pools(miner.ip)
-            rec_worker = miner_pools['POOLS'][0]['User']
 
+            try: rec_worker = miner_pools['POOLS'][0]['User']
+            except: rec_worker = '0'
+			
+			
             rec_model_id = miner.model_id
 
             rec_remarks = miner.remarks

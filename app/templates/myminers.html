@@ -39,11 +39,12 @@
 				{%- for model in total_miner_info|sort %}
 					{% if (total_miner_info[model].sum > 0) and (model != 'All') %} 
                     <li><strong><u>{{ model }}:</u></strong>
-					All:{{ total_miner_info[model].sum}}
-					Error:{{ total_miner_info[model].err}}
-					Warning:{{ total_miner_info[model].war}}
-					OK:{{ total_miner_info[model].ok}}
-					Offline:{{ total_miner_info[model].offline}}
+					All: <u>{{ total_miner_info[model].sum}}</u>
+					Error: <u>{{ total_miner_info[model].err}}</u>
+					Warning: <u>{{ total_miner_info[model].war}}</u>
+					OK: <u>{{ total_miner_info[model].ok}}</u>
+					Offline: <u>{{ total_miner_info[model].offline}}</u>
+					SumHR: <u>{{ total_miner_info[model].value}} {{ total_miner_info[model].unit}}</u>
                     </li>
 					{% endif %}
 		
@@ -114,8 +115,8 @@
 
 <div class="row">
 <div class="col">
-<fieldset name="active_miner_list">
-    <legend>Active Miners ({{ miners|length }})</legend>
+
+    
     <table id="table" class="table table-bordered" 
 					data-toggle="table"
 					data-search="true"
@@ -186,7 +187,7 @@
 
         {%- endfor %}		
     </table>
-</fieldset>
+
 </div>
 </div>
 

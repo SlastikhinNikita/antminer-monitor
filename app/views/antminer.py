@@ -73,14 +73,14 @@ def miners():
                        "T9": 12.5,
                        "A3": 815,
                        "L3": 250,}
-    total_miner_info = {"L3+": {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
-                        "All":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
-                        "S7":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
-                        "S9":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
-                        "D3":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
-                        "T9":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
-                        "A3":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},
-                        "L3":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0},}
+    total_miner_info = {"L3+": {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": "MH/s"},
+                        "All":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": ""},
+                        "S7":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": "GH/s"},
+                        "S9":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": "GH/s"},
+                        "D3":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": "MH/s"},
+                        "T9":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": "TH/s"},
+                        "A3":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": "GH/s"},
+                        "L3":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": "MH/s"},}
     total_hash_rate_per_model = {"L3+": {"value": 0, "unit": "MH/s" },
                                 "S7": {"value": 0, "unit": "GH/s" },
                                 "S9": {"value": 0, "unit": "GH/s" },
@@ -148,7 +148,7 @@ def miners():
             ghs5s = 0
 #        value, unit = update_unit_and_value(float(ghs5s), total_hash_rate_per_model[miner.model.model]['unit'])
 #        hash_rates.update({miner.ip: "{:3.2f} {}".format(value, unit)})
-        total_hash_rate_per_model[miner.model.model]["value"] += float(ghs5s)
+        total_miner_info[miner.model.model]["value"] += float(ghs5s)
         check_rate = (float(ghs5s) / miner_hashrate[miner.model.model]) * 100
         if (check_rate < 80) and (check_rate != 0):
             error_message = "[WARNING] Low Hashrate."
@@ -180,6 +180,7 @@ def miners():
     total_miner_info['All']["err"] = sum(x['err'] for x in total_miner_info.values())
     total_miner_info['All']["sum"] = sum(x['sum'] for x in total_miner_info.values())
     total_miner_info['All']["war"] = sum(x['war'] for x in total_miner_info.values())
+	
     total_hash_rate_per_model_temp = {}
     for key in total_hash_rate_per_model:
         value, unit = update_unit_and_value(total_hash_rate_per_model[key]["value"], total_hash_rate_per_model[key]["unit"])
@@ -202,10 +203,9 @@ def miners():
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_views():
-    # always "blindly" load the user
+
     miner = Miner.query.first()
     models = MinerModel.query.all()
-    # forms loaded through db relation
     return render_template('add.html', 
                            models=models)
 
