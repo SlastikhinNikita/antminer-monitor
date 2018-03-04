@@ -101,7 +101,7 @@ def miners():
         if miner_stats.online == '0':
             errors = True
             total_miner_info[miner.model.model]["offline"] += 1
-            error_message = "OFFLINE"
+            error_message = "Offline"
             miner_errors.update({miner.ip: error_message})
             
         chips_list = [int(y) for y in str(miner.model.chips).split(',')]
@@ -117,20 +117,14 @@ def miners():
         if temps[0] == '':
            temps = ['0']
 		   
-        if int(Xs) > 0:
-            error_message = "[ERROR]"						# "[ERROR] '{}' chips are defective on miner.".format(Xs)
+        if (int(Xs) > 0) or ((int(Os) + int(Xs) < total_chips) and (int(Os) + int(Xs) != 0)):
+            error_message = "Error"						# "[ERROR] '{}' chips are defective on miner.".format(Xs)
             errors = True
             miner_wars.update({miner.ip: error_message})
             total_miner_info[miner.model.model]["err"] += 1
-			
-        if (int(Os) + int(Xs) < total_chips) and (int(Os) + int(Xs) != 0):        
-            error_message = "[ERROR]"   					#"[ERROR] ASIC chips are missing from miner '{}'. Your Antminer '{}' has '{}/{} chips'." .format(miner.ip, miner.model.model, Os + Xs, total_chips)
 
-            errors = True
-            miner_errors.update({miner.ip: error_message})
-            total_miner_info[miner.model.model]["err"] += 1
-        if int(max(temps)) >= 80:
-            error_message = "[WARNING]"						# [WARNING] High temperatures on miner.
+        elif int(max(temps)) >= 80:
+            error_message = "Warning"						# [WARNING] High temperatures on miner.
             total_miner_info[miner.model.model]["war"] += 1
             errors = True
             
@@ -140,15 +134,7 @@ def miners():
         ghs5s = ghs5s[0:-4] 
         if ghs5s == '':
             ghs5s = 0
-#        value, unit = update_unit_and_value(float(ghs5s), total_hash_rate_per_model[miner.model.model]['unit'])
-#        hash_rates.update({miner.ip: "{:3.2f} {}".format(value, unit)})
         total_miner_info[miner.model.model]["value"] += float(ghs5s)
-        check_rate = (float(ghs5s) / miner_hashrate[miner.model.model]) * 100
-        if (check_rate < 80) and (check_rate != 0):
-            error_message = "[WARNING] Low Hashrate."			#  "[WARNING] Low Hashrate."
-            total_miner_info[miner.model.model]["war"] += 1
-            errors = True    
-            miner_wars.update({miner.ip: error_message})
 
         if errors == False:
            total_miner_info[miner.model.model]["ok"] += 1        
