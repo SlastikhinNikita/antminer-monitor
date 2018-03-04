@@ -5,14 +5,25 @@
 
 .fixed-table-container thead th:first-child{
 	border-radius: 0;
-	border: solid 1px #212529;
+	border: 0;
+	border: 1px solid #212529;
 }
+
+.table-bordered{
+	border-radius: 0;
+	border: 0;
+}
+
 
 
 .pull-right {
 
     float: right !important;
 
+}
+
+.pull-left {
+  float: left !important;
 }
 
 .dropdown-menu > li > a:focus, .dropdown-menu > li > a:hover {

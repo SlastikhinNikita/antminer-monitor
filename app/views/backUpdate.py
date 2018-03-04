@@ -53,9 +53,16 @@ def getAndUpdate(miner):
                                 "A3": {"value": 0, "unit": "GH/s" },
                                 "L3": {"value": 0, "unit": "MH/s" },}
 
-    if Miner.query.filter_by(ip=miner.ip).first() is not None:
+    
+#	if Miner.query.filter_by(ip=miner.ip).first() is not None:
+    try:
+
+
+
         miner_stats = get_stats(miner.ip)
 #            print(miner_stats)
+
+
         rec_last = str(datetime.now().strftime('%H:%M:%S %d/%m/%Y'))
         if miner_stats['STATUS'][0]['STATUS'] == 'error':
             errors = True
@@ -157,6 +164,8 @@ def getAndUpdate(miner):
             error_message = "[ERROR] Some shit happen!"
             logger.info(error_message)
 #                flash(error_message, "alert-danger")
+    except:
+        pass
 
     
     

@@ -26,50 +26,64 @@
 <div class="container">
     <div class="row">
     <div class="col">
-        <fieldset name="total_hashrate" style="height:130px">
-            <legend>Total hashrate per model (5s)</legend>
-            <ul>
-                {%- for model in total_hash_rate_per_model|sort %}
-                    <li><u>{{ model }}:</u> <strong>{{ total_hash_rate_per_model[model] }}</strong>
-                    </li>
-                {%- endfor %}
-				
-				
-				
-				{%- for model in total_miner_info|sort %}
-					{% if (total_miner_info[model].sum > 0) and (model != 'All') %} 
-                    <li><strong><u>{{ model }}:</u></strong>
-					All: <u>{{ total_miner_info[model].sum}}</u>
-					Error: <u>{{ total_miner_info[model].err}}</u>
-					Warning: <u>{{ total_miner_info[model].war}}</u>
-					OK: <u>{{ total_miner_info[model].ok}}</u>
-					Offline: <u>{{ total_miner_info[model].offline}}</u>
-					SumHR: <u>{{ total_miner_info[model].value}} {{ total_miner_info[model].unit}}</u>
-                    </li>
+	
+			
+		   <table id="table" class="table table-bordered">
+	<thead class="thead-dark">
+        <tr>
+            <th>Model</th>
+            <th>Sum</th>
+            <th>Error</th>
+            <th>Warning</th>
+            <th>OK</th>
+            <th>Offline</th>
+            <th>Sum Hashrate</th>
+            <th>Evg Hashrate</th>
+        </tr>
+		</thead>
+					{%- for model in total_miner_info|sort %}
+					{% if (total_miner_info[model].sum > 0) and (model != 'All') %} 		
+            <tr>  		
+                <td>{{ model }}</td>			
+                <td>{{ total_miner_info[model].sum}}</td>			
+                <td>{{ total_miner_info[model].err}}</td>			
+                <td>{{ total_miner_info[model].war}}</td>			
+                <td>{{ total_miner_info[model].ok}}</td>			
+                <td>{{ total_miner_info[model].offline}}</td>			
+                <td>{{ '%0.2f' % total_miner_info[model].value|float}} </td>			
+                <td>{% if total_miner_info[model].sum != total_miner_info[model].offline %} 
+				{% set evg = (total_miner_info[model].value / (total_miner_info[model].sum - total_miner_info[model].offline) ) %} {{'%0.2f' % evg|float}}
+				{% endif %}
+				</td>			
+            </tr>
 					{% endif %}
 		
                 {%- endfor %}
-				
-				{%- for model in total_miner_info|sort %}
-					{% if model == 'All' %} 
-					<li>All: <strong><u>{{ total_miner_info[model].sum}}</u></strong>
-					Error: <strong><u>{{ total_miner_info[model].err}}</u></strong>
-					Warning: <strong><u>{{ total_miner_info[model].war}}</u></strong>
-					OK: <strong><u>{{ total_miner_info[model].ok}}</u></strong>
-					Offline: <strong><u>{{ total_miner_info[model].offline}}</u></strong>
-                    </li>
-					{% endif %}					
-               {%- endfor %}				
-				
-				
 
-            </ul>
-        </fieldset>
+				
+			  {%- for model in total_miner_info|sort %}
+					{% if model == 'All' %}  
+            <tr>  		
+                <td>{{ model }}</td>			
+                <td>{{ total_miner_info[model].sum}}</td>			
+                <td>{{ total_miner_info[model].err}}</td>			
+                <td>{{ total_miner_info[model].war}}</td>			
+                <td>{{ total_miner_info[model].ok}}</td>			
+                <td>{{ total_miner_info[model].offline}}</td>			
+                <td></td>				
+                <td><!--<img src="https://cataas.com/cat?height=100" />--></td>		
+            </tr>			   
+					{% endif %}					
+               {%- endfor %}	   
+
+	
+
+    </table>			
+			
+			
     </div>
 </div>
 
-
-<br/>
 
 
 
@@ -116,14 +130,31 @@
 <div class="row">
 <div class="col">
 
-    
+<div id="toolbar" class="columns-left btn-group pull-left">
+  <div class="input-group-prepend">
+    <button type="button" class="btn dropdown-toggle dropdown-toggle-split btn-primary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" id="btn-reboot" href="#">Reboot</a>
+      <a class="dropdown-item" id="btn-remove" href="#">Delete</a>
+    </div>
+  </div>
+ </div>
+
+
+
+	
+	
     <table id="table" class="table table-bordered" 
 					data-toggle="table"
 					data-search="true"
 					data-filter-control="true" 
-					data-show-export="true">
+					data-show-export="true"
+					data-toolbar="#toolbar">
 	<thead class="thead-dark">
         <tr>
+			<th data-field="state" data-checkbox="true"></th>
             <th data-field="ip2" data-filter-control="input" data-sortable="true"><span class="text-success">IP Address</span></th>
             <th data-field="worker2" data-filter-control="input" data-sortable="true"><span class="text-success">Worker</span></th>
             <th data-field="model2" data-filter-control="select" data-sortable="true"><span class="text-success">Model</span></th>
@@ -153,7 +184,8 @@
 				class="table-warning"
 			{% endif %} id="tablerow{{ loop.index }}"
 			>
-                <td><a target="_blank" href="http://{{ active_miner2.ip }}" class="text-success">{{ active_miner2.ip }}</a></td>
+				<td><input name="btSelectItem" type="checkbox"></td>
+                <td><a target="_blank" href="http://{{ active_miner2.ip }}" class="text-success ip" id="{{ loop.index }}">{{ active_miner2.ip }}</a></td>
                 <td>{{ active_miner2.worker }}</td>
                 <td>{{ active_miner2.model.model }}</td>
                 <td>{{ active_miner2.remarks }}</td>
@@ -187,6 +219,7 @@
 
         {%- endfor %}		
     </table>
+
 
 </div>
 </div>
@@ -228,43 +261,54 @@
 
 
 
+<script type="text/javascript">
+    function send(arr, ip, index) {
+        var url = ""
 
-  <script type="text/javascript">
-       function send(arr,ip,index){
-	   var url = ""
-	   
-switch(arr) {
-  case 'reboot':  
-  url = "/reboot/" + ip
-   		$.post(url, function(data) {
-		  alert('Команда на перезагрузку хоста ' + ip + ' отправлена.');
-		});
-    break;
+        switch (arr) {
+            case 'reboot':
+                url = "/reboot/" + ip
+                $.post(url, function(data) {
+                    alert('Команда на перезагрузку хоста ' + ip + ' отправлена.');
+                });
+                break;
 
-  case 'delete':  
-   url = "/delete/" + ip
-    
-	$.post(url, function(data) {
-		  alert('Хост ' + ip + ' удалён.'),
-		  document.getElementById("tablerow"+index).remove();
-		  ;
-		});
-    break;
+            case 'delete':
+                url = "/delete/" + ip
 
-
-};
-	   
-
-		
-		
-      };
-	  
-	  
-	  
-	  
+                $.post(url, function(data) {
+                    alert('Хост ' + ip + ' удалён.'),
+                        document.getElementById("tablerow" + index).remove();;
+                });
+                break;
+        };
+    };
 
 
-  </script>
+
+
+    $(document).ready(function() {
+        $('#btn-reboot').click(function() {
+            $('.selected input:checked').each(function() {
+                var ip, name;
+                ip = $(this).closest('tr').find('.ip').html();
+
+                send('reboot', ip, '0');
+            })
+
+        })
+
+        $('#btn-remove').click(function() {
+            $('.selected input:checked').each(function() {
+                var ip, id;
+                ip = $(this).closest('tr').find('.ip').html();
+                id = $(this).closest('tr').find('.ip').attr('id');
+
+                send('delete', ip, id);
+            })
+        })
+    })
+</script>
 
 
 </body>

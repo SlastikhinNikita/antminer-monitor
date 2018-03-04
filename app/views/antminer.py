@@ -74,7 +74,7 @@ def miners():
                        "A3": 815,
                        "L3": 250,}
     total_miner_info = {"L3+": {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": "MH/s"},
-                        "All":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": ""},
+                        "All":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": "", "evg" : 0},
                         "S7":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": "GH/s"},
                         "S9":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": "GH/s"},
                         "D3":  {"sum": 0, "ok": 0, "err": 0, "war": 0, "offline": 0,"value": 0, "unit": "MH/s"},
@@ -101,7 +101,7 @@ def miners():
         if miner_stats.online == '0':
             errors = True
             total_miner_info[miner.model.model]["offline"] += 1
-            error_message = "[ERROR] miner is OFFLINE."
+            error_message = "OFFLINE"
             miner_errors.update({miner.ip: error_message})
             
         chips_list = [int(y) for y in str(miner.model.chips).split(',')]
@@ -114,34 +114,28 @@ def miners():
             temps = temps.split(',')
         else:
             temps = ['0']
+        if temps[0] == '':
+           temps = ['0']
+		   
         if int(Xs) > 0:
-            error_message = "[WARNING] '{}' chips are defective on miner.".format(Xs)
-            logger.warning(error_message)
-#            flash(error_message, "alert-warning")
+            error_message = "[ERROR]"						# "[ERROR] '{}' chips are defective on miner.".format(Xs)
             errors = True
             miner_wars.update({miner.ip: error_message})
-            total_miner_info[miner.model.model]["war"] += 1
+            total_miner_info[miner.model.model]["err"] += 1
+			
         if (int(Os) + int(Xs) < total_chips) and (int(Os) + int(Xs) != 0):        
-            error_message = "[ERROR] ASIC chips are missing from miner '{}'. Your Antminer '{}' has '{}/{} chips'." \
-                    .format(miner.ip,
-                            miner.model.model,
-                            Os + Xs,
-                            total_chips)
-            logger.error(error_message)
-#            flash(error_message, "alert-danger")
+            error_message = "[ERROR]"   					#"[ERROR] ASIC chips are missing from miner '{}'. Your Antminer '{}' has '{}/{} chips'." .format(miner.ip, miner.model.model, Os + Xs, total_chips)
+
             errors = True
             miner_errors.update({miner.ip: error_message})
             total_miner_info[miner.model.model]["err"] += 1
         if int(max(temps)) >= 80:
-            error_message = "[WARNING] High temperatures on miner."
-            logger.warning(error_message)
-#            flash(error_message, "alert-warning")
+            error_message = "[WARNING]"						# [WARNING] High temperatures on miner.
             total_miner_info[miner.model.model]["war"] += 1
             errors = True
             
         
-        if errors == False:
-           total_miner_info[miner.model.model]["ok"] += 1
+
         ghs5s = miner.hash
         ghs5s = ghs5s[0:-4] 
         if ghs5s == '':
@@ -151,23 +145,23 @@ def miners():
         total_miner_info[miner.model.model]["value"] += float(ghs5s)
         check_rate = (float(ghs5s) / miner_hashrate[miner.model.model]) * 100
         if (check_rate < 80) and (check_rate != 0):
-            error_message = "[WARNING] Low Hashrate."
-            logger.warning(error_message)
-#            flash(error_message, "alert-warning")
+            error_message = "[WARNING] Low Hashrate."			#  "[WARNING] Low Hashrate."
             total_miner_info[miner.model.model]["war"] += 1
             errors = True    
             miner_wars.update({miner.ip: error_message})
-        
+
+        if errors == False:
+           total_miner_info[miner.model.model]["ok"] += 1        
         
         
     # Flash success/info message
     if not miners:
         error_message = "[INFO] No miners added yet. Please add miners using the above form."
-        logger.info(error_message)
+#        logger.info(error_message)
 #        flash(error_message, "alert-info")
     elif not errors:
         error_message = "[INFO] All miners are operating normal. No errors found."
-        logger.info(error_message)
+#        logger.info(error_message)
 #        flash(error_message, "alert-info")
 
     # flash("INFO !!! Check chips on your miner", "info")
@@ -175,12 +169,14 @@ def miners():
     # flash("WARNING !!! Check temperatures on your miner", "warning")
     # flash("ERROR !!!Check board(s) on your miner", "error")
 
-	
+    
     total_miner_info['All']["offline"] = sum(x['offline'] for x in total_miner_info.values())
     total_miner_info['All']["err"] = sum(x['err'] for x in total_miner_info.values())
     total_miner_info['All']["sum"] = sum(x['sum'] for x in total_miner_info.values())
     total_miner_info['All']["war"] = sum(x['war'] for x in total_miner_info.values())
-	
+    total_miner_info['All']["ok"] = sum(x['ok'] for x in total_miner_info.values())
+    total_miner_info['All']["value"] = sum(x['value'] for x in total_miner_info.values())
+    
     total_hash_rate_per_model_temp = {}
     for key in total_hash_rate_per_model:
         value, unit = update_unit_and_value(total_hash_rate_per_model[key]["value"], total_hash_rate_per_model[key]["unit"])
