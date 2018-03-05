@@ -88,12 +88,12 @@ def miners():
                                 "T9": {"value": 0, "unit": "TH/s" },
                                 "A3": {"value": 0, "unit": "GH/s" },
                                 "L3": {"value": 0, "unit": "MH/s" },}
-                                
-    
+
+
     errors = False
     miner_errors = {}
     miner_wars = {}
-    
+
     for miner in miners:
         errors = False
         miner_stats = Miner.query.filter_by(ip=miner.ip).first()
@@ -103,12 +103,12 @@ def miners():
             total_miner_info[miner.model.model]["offline"] += 1
             error_message = "Offline"
             miner_errors.update({miner.ip: error_message})
-            
+
         chips_list = [int(y) for y in str(miner.model.chips).split(',')]
-        total_chips = sum(chips_list)           
+        total_chips = sum(chips_list)
         Os = miner.chipsOs
         Xs = miner.chipsXs
-        temps = miner.tem  
+        temps = miner.tem
         if temps[0] == '[':
             temps = temps[1:-1]
             temps = temps.split(',')
@@ -116,7 +116,7 @@ def miners():
             temps = ['0']
         if temps[0] == '':
            temps = ['0']
-		   
+
         if (int(Xs) > 0) or ((int(Os) + int(Xs) < total_chips) and (int(Os) + int(Xs) != 0)):
             error_message = "Error"						# "[ERROR] '{}' chips are defective on miner.".format(Xs)
             errors = True
@@ -127,19 +127,19 @@ def miners():
             error_message = "Warning"						# [WARNING] High temperatures on miner.
             total_miner_info[miner.model.model]["war"] += 1
             errors = True
-            
-        
+
+
 
         ghs5s = miner.hash
-        ghs5s = ghs5s[0:-4] 
+        ghs5s = ghs5s[0:-4]
         if ghs5s == '':
             ghs5s = 0
         total_miner_info[miner.model.model]["value"] += float(ghs5s)
 
         if errors == False:
-           total_miner_info[miner.model.model]["ok"] += 1        
-        
-        
+           total_miner_info[miner.model.model]["ok"] += 1
+
+
     # Flash success/info message
     if not miners:
         error_message = "[INFO] No miners added yet. Please add miners using the above form."
@@ -155,14 +155,14 @@ def miners():
     # flash("WARNING !!! Check temperatures on your miner", "warning")
     # flash("ERROR !!!Check board(s) on your miner", "error")
 
-    
+
     total_miner_info['All']["offline"] = sum(x['offline'] for x in total_miner_info.values())
     total_miner_info['All']["err"] = sum(x['err'] for x in total_miner_info.values())
     total_miner_info['All']["sum"] = sum(x['sum'] for x in total_miner_info.values())
     total_miner_info['All']["war"] = sum(x['war'] for x in total_miner_info.values())
     total_miner_info['All']["ok"] = sum(x['ok'] for x in total_miner_info.values())
     total_miner_info['All']["value"] = sum(x['value'] for x in total_miner_info.values())
-    
+
     total_hash_rate_per_model_temp = {}
     for key in total_hash_rate_per_model:
         value, unit = update_unit_and_value(total_hash_rate_per_model[key]["value"], total_hash_rate_per_model[key]["unit"])
@@ -180,18 +180,18 @@ def miners():
                            )
 
 
-                       
-                           
+
+
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_views():
 
     miner = Miner.query.first()
     models = MinerModel.query.all()
-    return render_template('add.html', 
+    return render_template('add.html',
                            models=models)
 
-                           
+
 @app.route('/addminers', methods=['GET', 'POST'])
 def addminers():
     """Mass add miners..."""
@@ -200,22 +200,22 @@ def addminers():
     miners_list = request.form['ip_list']
     miners_list = miners_list.split('\r\n')
 
-    
-    
-    for miner_ip in miners_list:    
+
+
+    for miner_ip in miners_list:
         if isgoodipv4(miner_ip):
             try:
-                miner = Miner(ip=miner_ip, model_id=miners_model_id, remarks='', 
+                miner = Miner(ip=miner_ip, model_id=miners_model_id, remarks='',
                     worker = '',
-                    chipsOs = '0', 
-                    chipsXs = '0', 
-                    chipsl = '0', 
-                    tem = '0', 
-                    fan = '', 
-                    hash = '', 
-                    hwerorr = '', 
-                    uptime = '', 
-                    online = '0', 
+                    chipsOs = '0',
+                    chipsXs = '0',
+                    chipsl = '0',
+                    tem = '0',
+                    fan = '',
+                    hash = '',
+                    hwerorr = '',
+                    uptime = '',
+                    online = '0',
                     last = '')
                 db.session.add(miner)
                 db.session.commit()
@@ -224,40 +224,36 @@ def addminers():
                 db.session.rollback()
                 flash("IP Address {} already added".format(miner_ip), "alert-danger")
         else:
-            flash("IP: {} is not correct".format(miner_ip), "alert-danger")    
+            flash("IP: {} is not correct".format(miner_ip), "alert-danger")
     return redirect(url_for('add_views'))
 
-    
 
-    
-    
+
+
+
 @app.route('/reboot/<ip>', methods=['POST'])
 def reboot_miner(ip):
-    
-    cmd = 'root@{}'.format(ip)
-
-    print(cmd)
-      
+    print("run reboot {}".format(ip))
     try:
-        subprocess.Popen(["ssh",cmd,"/sbin/reboot"])
+        subprocess.Popen(["./reboot_mine",ip])
     except subprocess.CalledProcessError as e:
         print('Command \n> {}\n is fail with error: {}'.format(e.cmd, e.returncode))
-    
-    
+
+
 
     return redirect(url_for('miners'))
-    
-    
-    
+
+
+
 #@app.route('/_get_data/', methods=['POST'])
 #def _get_data():
 #    myList = ['Element1', 'Element2', 'Element3']
 
 #    return jsonify({'data': render_template('response.html', myList=myList)})
-    
-    
-    
-    
+
+
+
+
 
 
 @app.route('/delete/<ip>', methods=['POST'])
