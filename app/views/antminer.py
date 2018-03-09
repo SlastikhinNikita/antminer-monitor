@@ -12,9 +12,9 @@ from app.views.antminer_json import (get_summary,
                                      )
 from sqlalchemy.exc import IntegrityError
 from app.pycgminer import CgminerAPI
-from app.views.backUpdate import updateRecords, update_unit_and_value
+from app.views.backUpdate import updateRecords, updateHistory, update_unit_and_value
 from app import app, db, logger, __version__
-from app.models import Miner, MinerModel, Settings
+from app.models import Miner, History, MinerModel, Settings
 import re
 from datetime import timedelta,datetime
 
@@ -34,7 +34,7 @@ class ClockThread(threading.Thread):
     def run(self):
         while True:
             try:
-               updateRecords()
+                updateRecords()
             finally:
                 time.sleep(self.interval)
 
@@ -45,9 +45,7 @@ class ClockThread2(threading.Thread):
         self.interval = interval
     def run(self):
         while True:
-            try:
-               updateHistory()
-            finally:
+                updateHistory()
                 time.sleep(self.interval)
 
 # Update from one unit to the next if the value is greater than 1024.
@@ -103,6 +101,7 @@ def miners():
     errors = False
     miner_errors = {}
     miner_wars = {}
+    miner_offline = {}
 
     for miner in miners:
         errors = False
@@ -112,7 +111,7 @@ def miners():
             errors = True
             total_miner_info[miner.model.model]["offline"] += 1
             error_message = "Offline"
-            miner_errors.update({miner.ip: error_message})
+            miner_offline.update({miner.ip: error_message})
 
         chips_list = [int(y) for y in str(miner.model.chips).split(',')]
         total_chips = sum(chips_list)
@@ -138,22 +137,22 @@ def miners():
         if (int(Xs) > 0) or ((int(Os) + int(Xs) < total_chips) and (int(Os) + int(Xs) != 0)):
             error_message = "Error"                        # "[ERROR] '{}' chips are defective on miner.".format(Xs)
             errors = True
-            miner_wars.update({miner.ip: error_message})
+            miner_errors.update({miner.ip: error_message})
             total_miner_info[miner.model.model]["err"] += 1
 
         elif int(max(temps)) >= 80:
-            error_message = "Warning"                        # [WARNING] High temperatures on miner.
+            error_message = "Warning High temperature"                        # [WARNING] High temperatures on miner.
             total_miner_info[miner.model.model]["war"] += 1
             errors = True
 
         elif (check_rate < 80) and (check_rate != 0):
-            error_message = "[WARNING] Low Hashrate."            #  "[WARNING] Low Hashrate."
+            error_message = "Warning Low Hashrate."            #  "[WARNING] Low Hashrate."
             total_miner_info[miner.model.model]["war"] += 1
             errors = True    
             miner_wars.update({miner.ip: error_message})
 
-        elif (check_rate > 101) and (check_rate != 0):
-            error_message = "[WARNING] Hashrate Error."            #  "[WARNING] Low Hashrate."
+        elif (check_rate > 120) and (check_rate != 0):
+            error_message = "Warning Hashrate Error."            #  "[WARNING] Low Hashrate."
             total_miner_info[miner.model.model]["war"] += 1
             errors = True    
             miner_wars.update({miner.ip: error_message})
@@ -198,6 +197,7 @@ def miners():
                            version=__version__,
                            models=models,
                            miner_errors=miner_errors,
+                           miner_offline=miner_offline,
                            miner_wars=miner_wars,
                            total_hash_rate_per_model=total_hash_rate_per_model_temp,
                            total_miner_info=total_miner_info,
@@ -296,24 +296,22 @@ def delete_miner(ip):
     return redirect(url_for('miners'))
 
 
-@app.route('/history/<ip>', methods=['POST'])
+@app.route('/history/<ip>')
 def history_miner(ip):
-    print("run reboot {}".format(ip))
-    try:
-        subprocess.Popen(["./reboot_mine",ip])
-    except subprocess.CalledProcessError as e:
-        print('Command \n> {}\n is fail with error: {}'.format(e.cmd, e.returncode))
 
-
+    miner_history = History.query.filter_by(ip=str(ip))
 
     return render_template('history.html',
-                           models=models)
+                           miner_history=miner_history,ip=ip)
 
 
-
+						   
+						   
+						   
+t = ClockThread2(800)
+t.start()
 
 t = ClockThread(10)
 t.start()
 
-t = ClockThread2(10000)
-t.start()
+

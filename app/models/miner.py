@@ -6,7 +6,7 @@ class Miner(db.Model):
     ip = db.Column(db.String(15), unique=True, nullable=False)
     worker = db.Column(db.String(100), nullable=True)
     model_id = db.Column(db.Integer, db.ForeignKey('miner_model.id'), nullable=False)
-    model = db.relationship("MinerModel", backref="miners")
+    model = db.relationship("MinerModel", backref="miner")
     remarks = db.Column(db.String(255), nullable=True)
     chipsOs = db.Column(db.String(255), nullable=True)
     chipsXs = db.Column(db.String(255), nullable=True)
@@ -20,7 +20,7 @@ class Miner(db.Model):
     last = db.Column(db.String(255), nullable=True)
 	
     def __repr__(self):
-        return "Temp(ip='{}', \
+        return "Miner(ip='{}', \
                      worker='{}', \
                      model='{}', \
                      remarks='{}', \
