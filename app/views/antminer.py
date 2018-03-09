@@ -38,7 +38,17 @@ class ClockThread(threading.Thread):
             finally:
                 time.sleep(self.interval)
 
-
+class ClockThread2(threading.Thread):
+    def __init__(self,interval):
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.interval = interval
+    def run(self):
+        while True:
+            try:
+               updateHistory()
+            finally:
+                time.sleep(self.interval)
 
 # Update from one unit to the next if the value is greater than 1024.
 # e.g. update_unit_and_value(1024, "GH/s") => (1, "TH/s")
@@ -109,6 +119,14 @@ def miners():
         Os = miner.chipsOs
         Xs = miner.chipsXs
         temps = miner.tem
+        
+        ghs5s = miner.hash
+        ghs5s = ghs5s[0:-4]
+        if ghs5s == '':
+            ghs5s = 0
+        total_miner_info[miner.model.model]["value"] += float(ghs5s)        
+        check_rate = (float(ghs5s) / miner_hashrate[miner.model.model]) * 100
+
         if temps[0] == '[':
             temps = temps[1:-1]
             temps = temps.split(',')
@@ -118,23 +136,30 @@ def miners():
            temps = ['0']
 
         if (int(Xs) > 0) or ((int(Os) + int(Xs) < total_chips) and (int(Os) + int(Xs) != 0)):
-            error_message = "Error"						# "[ERROR] '{}' chips are defective on miner.".format(Xs)
+            error_message = "Error"                        # "[ERROR] '{}' chips are defective on miner.".format(Xs)
             errors = True
             miner_wars.update({miner.ip: error_message})
             total_miner_info[miner.model.model]["err"] += 1
 
         elif int(max(temps)) >= 80:
-            error_message = "Warning"						# [WARNING] High temperatures on miner.
+            error_message = "Warning"                        # [WARNING] High temperatures on miner.
             total_miner_info[miner.model.model]["war"] += 1
             errors = True
 
+        elif (check_rate < 80) and (check_rate != 0):
+            error_message = "[WARNING] Low Hashrate."            #  "[WARNING] Low Hashrate."
+            total_miner_info[miner.model.model]["war"] += 1
+            errors = True    
+            miner_wars.update({miner.ip: error_message})
+
+        elif (check_rate > 101) and (check_rate != 0):
+            error_message = "[WARNING] Hashrate Error."            #  "[WARNING] Low Hashrate."
+            total_miner_info[miner.model.model]["war"] += 1
+            errors = True    
+            miner_wars.update({miner.ip: error_message})
 
 
-        ghs5s = miner.hash
-        ghs5s = ghs5s[0:-4]
-        if ghs5s == '':
-            ghs5s = 0
-        total_miner_info[miner.model.model]["value"] += float(ghs5s)
+
 
         if errors == False:
            total_miner_info[miner.model.model]["ok"] += 1
@@ -271,9 +296,24 @@ def delete_miner(ip):
     return redirect(url_for('miners'))
 
 
+@app.route('/history/<ip>', methods=['POST'])
+def history_miner(ip):
+    print("run reboot {}".format(ip))
+    try:
+        subprocess.Popen(["./reboot_mine",ip])
+    except subprocess.CalledProcessError as e:
+        print('Command \n> {}\n is fail with error: {}'.format(e.cmd, e.returncode))
+
+
+
+    return render_template('history.html',
+                           models=models)
 
 
 
 
 t = ClockThread(10)
+t.start()
+
+t = ClockThread2(10000)
 t.start()

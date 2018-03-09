@@ -154,24 +154,24 @@
 					data-toolbar="#toolbar">
 	<thead class="thead-dark">
         <tr>
-			<th data-field="state" data-checkbox="true"></th>
+			<th data-field="state" data-checkbox="true" ></th>
             <th data-field="ip2" data-filter-control="input" data-sortable="true"><span class="text-success">IP Address</span></th>
             <th data-field="worker2" data-filter-control="input" data-sortable="true"><span class="text-success">Worker</span></th>
             <th data-field="model2" data-filter-control="select" data-sortable="true"><span class="text-success">Model</span></th>
-            <th data-field="remarks2" data-filter-control="input" data-sortable="true"><span class="text-success">Remarks</span></th>
+           <!-- <th data-field="remarks2" data-filter-control="input" data-sortable="true"><span class="text-success">Remarks</span></th>-->
             <th data-field="Os" data-filter-control="input" data-sortable="true" title="'O' means OK"><span class="text-success">(Os)</span></th>
             <th data-field="Xs" data-filter-control="input" data-sortable="true" title="'X' means defective"><span class="text-success">(Xs)</span></th>
             <th data-field="R" data-filter-control="input" data-sortable="true" title="'-' means instability of the power supply voltage or the defective hash board"><span class="text-success">(-)</span></th>
             <th data-field="Chip" data-filter-control="input" data-sortable="true"><span class="text-success">Chip Temp(C)</span></th>
-            <th data-field="Fan" data-filter-control="input" data-sortable="true"><span class="text-success">Fan speeds (rpm)</span></th>
+           <!-- <th data-field="Fan" data-filter-control="input" data-sortable="true"><span class="text-success">Fan speeds (rpm)</span></th>-->
             <th data-field="Hashrate" data-filter-control="input" data-sortable="true"><span class="text-success">Hashrate (5s)</span></th>
-            <th data-field="HW" data-filter-control="input" data-sortable="true"><span class="text-success">HW Error %</span></th>
+          <!--   <th data-field="HW" data-filter-control="input" data-sortable="true"><span class="text-success">HW Error %</span></th>-->
             <th data-field="Uptime" data-filter-control="input" data-sortable="true"><span class="text-success">Uptime</span></th>
             <th data-field="Status" data-filter-control="select" data-sortable="true"><span class="text-success">Status</span></th>
             <th data-field="Last" data-filter-control="input" data-sortable="true"><span class="text-success">Last</span></th>
             <!--<th>JSON Info</th>-->
-            <th>Reboot</th>
-            <th>Remove</th>
+            <!--<th>Reboot</th>
+            <th>Remove</th>-->
         </tr>
 		</thead>
   	
@@ -184,18 +184,18 @@
 				class="table-warning"
 			{% endif %} id="tablerow{{ loop.index }}"
 			>
-				<td><input name="btSelectItem" type="checkbox"></td>
+				<td class="bs-checkbox "><input name="btSelectItem" type="checkbox" data-index="{{ loop.index }}"></td>
                 <td><a target="_blank" href="http://{{ active_miner2.ip }}" class="text-success ip" id="{{ loop.index }}">{{ active_miner2.ip }}</a></td>
                 <td>{{ active_miner2.worker }}</td>
                 <td>{{ active_miner2.model.model }}</td>
-                <td>{{ active_miner2.remarks }}</td>
+                <!-- <td>{{ active_miner2.remarks }}</td>-->
                 <td>{{ active_miner2.chipsOs }}</td>
                 <td>{{ active_miner2.chipsXs }}</td>
                 <td>{{ active_miner2.chipsl }}</td>
                 <td>{{ active_miner2.tem }}</td>
-                <td>{{ active_miner2.fan }}</td>
+              <!--  <td>{{ active_miner2.fan }}</td>-->
                 <td>{{ active_miner2.hash }}</td>
-                <td>{{ active_miner2.hwerorr }}</td>
+               <!--  <td>{{ active_miner2.hwerorr }}</td>-->
                 <td>{{ active_miner2.uptime }}</td>
                <!-- <td title="{%- if active_miner2.ip in miner_errors %}{{ miner_errors[active_miner2.ip] }}{%- endif %}">-->
                 <td>
@@ -213,8 +213,8 @@
                     <a target="_blank" href="/{{ active_miner2.ip }}/pools">Pools</a> |
                     <a target="_blank" href="/{{ active_miner2.ip }}/stats">Stats</a>
 				</td>-->
-				<td class="text-center"><a href="#!" onclick="send('reboot','{{active_miner2.ip}}','{{ loop.index }}')" class="text-success"><i class="material-icons">cached</i></a></td>
-				<td class="text-center"><a href="#!" onClick="send('delete','{{active_miner2.ip}}','{{ loop.index }}')" class="text-danger"><i class="material-icons">delete_forever</i></a></td>
+				 <!-- <td class="text-center"><a href="#!" onclick="send('reboot','{{active_miner2.ip}}','{{ loop.index }}')" class="text-success"><i class="material-icons">cached</i></a></td>
+				<td class="text-center"><a href="#!" onClick="send('delete','{{active_miner2.ip}}','{{ loop.index }}')" class="text-danger"><i class="material-icons">delete_forever</i></a></td>-->
             </tr>
 
         {%- endfor %}		
@@ -251,13 +251,13 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/locale/bootstrap-table-ru-RU.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/extensions/editable/bootstrap-table-editable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/extensions/export/bootstrap-table-export.min.js"></script>
 
 <script src='http://rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js'></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
 
 
 
@@ -269,7 +269,7 @@
             case 'reboot':
                 url = "/reboot/" + ip
                 $.post(url, function(data) {
-                    alert('Команда на перезагрузку хоста ' + ip + ' отправлена.');
+                    
                 });
                 break;
 
@@ -277,8 +277,7 @@
                 url = "/delete/" + ip
 
                 $.post(url, function(data) {
-                    alert('Хост ' + ip + ' удалён.'),
-                        document.getElementById("tablerow" + index).remove();;
+                    document.getElementById("tablerow" + index).remove();;
                 });
                 break;
         };
@@ -289,6 +288,7 @@
 
     $(document).ready(function() {
         $('#btn-reboot').click(function() {
+			alert('Команда на перезагрузку хоста отправлена.');
             $('.selected input:checked').each(function() {
                 var ip, name;
                 ip = $(this).closest('tr').find('.ip').html();
@@ -299,6 +299,7 @@
         })
 
         $('#btn-remove').click(function() {
+			alert('Выбранные хосты удалёны. Ожидайте обновления таблицы');
             $('.selected input:checked').each(function() {
                 var ip, id;
                 ip = $(this).closest('tr').find('.ip').html();

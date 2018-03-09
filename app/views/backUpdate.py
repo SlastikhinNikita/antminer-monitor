@@ -183,4 +183,16 @@ def updateRecords():
         i = i + 1
     
     
+def updateHistory():
+    """Add two numbers server side, ridiculous but well..."""
+    miners = Miner.query.all()
+    i = 0
+
+    for miner in miners:
+        a = getAndUpdate(miner)
+        p = Process(target=a, args=(i,))
+        p.start()
+        i = i + 1
+    
+    
 
