@@ -169,6 +169,7 @@ def getAndUpdate(miner):
 
 def getAndUpdateHistory(miner):
     """Add record in History Table (check miner and add it)"""
+	
     rec_ip={}
     rec_worker={}
     rec_model_id={}
@@ -261,9 +262,18 @@ def getAndUpdateHistory(miner):
                                   uptime=str(rec_uptime), \
                                   online=str(rec_online), \
                                   last=str(rec_last))
-    db.session.add(record)
-    db.session.commit()    
-    
+
+
+    miner_rec = History.query.filter_by(ip=str(miner.ip)).order_by(History.last.desc()).first()
+    datetime_object = datetime.strptime(miner_rec.last, '%H:%M:%S %d/%m/%Y')
+    datetime_object = datetime.now() - datetime_object
+
+    if datetime_object.total_seconds() > 600:
+        db.session.add(record)
+        db.session.commit()    
+
+
+		
     
 def updateRecords():
     """Add two numbers server side, ridiculous but well..."""

@@ -145,17 +145,17 @@ def miners():
             total_miner_info[miner.model.model]["war"] += 1
             errors = True
 
-        elif (check_rate < 80) and (check_rate != 0):
-            error_message = "Warning Low Hashrate."            #  "[WARNING] Low Hashrate."
-            total_miner_info[miner.model.model]["war"] += 1
-            errors = True    
-            miner_wars.update({miner.ip: error_message})
+#        elif (check_rate < 80) and (check_rate != 0):
+#            error_message = "Warning Low Hashrate."            #  "[WARNING] Low Hashrate."
+#            total_miner_info[miner.model.model]["war"] += 1
+#            errors = True    
+#            miner_wars.update({miner.ip: error_message})
 
-        elif (check_rate > 120) and (check_rate != 0):
-            error_message = "Warning Hashrate Error."            #  "[WARNING] Low Hashrate."
-            total_miner_info[miner.model.model]["war"] += 1
-            errors = True    
-            miner_wars.update({miner.ip: error_message})
+#        elif (check_rate > 120) and (check_rate != 0):
+#            error_message = "Warning Hashrate Error."            #  "[WARNING] Low Hashrate."
+#            total_miner_info[miner.model.model]["war"] += 1
+#            errors = True    
+#            miner_wars.update({miner.ip: error_message})
 
 
 
@@ -307,11 +307,11 @@ def history_miner(ip):
 
 						   
 						   
-						   
-t = ClockThread2(800)
-t.start()
+
 
 t = ClockThread(10)
 t.start()
-
+						   
+t = ClockThread2(10)
+t.start()
 

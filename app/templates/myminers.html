@@ -37,17 +37,17 @@
     <div class="col">
 	
 			
-		   <table id="table" class="table table-bordered">
+		   <table id="table" class="table table-bordered text-center">
 	<thead class="thead-dark">
         <tr>
-            <th>Model</th>
-            <th>Sum</th>
-            <th>Error</th>
-            <th>Warning</th>
-            <th>OK</th>
-            <th>Offline</th>
-            <th>Sum Hashrate</th>
-            <th>Evg Hashrate</th>
+            <th class="text-success">Model</th>
+            <th class="text-success">Sum</th>
+            <th class="text-success">Error</th>
+            <th class="text-success">Warning</th>
+            <th class="text-success">OK</th>
+            <th class="text-success">Offline</th>
+            <th class="text-success">Sum Hashrate</th>
+            <th class="text-success">Evg Hashrate</th>
         </tr>
 		</thead>
 					{%- for model in total_miner_info|sort %}
@@ -59,10 +59,10 @@
                 <td>{{ total_miner_info[model].war}}</td>			
                 <td>{{ total_miner_info[model].ok}}</td>			
                 <td>{{ total_miner_info[model].offline}}</td>			
-                <td>{{ '%0.2f' % total_miner_info[model].value|float}} </td>			
+                <td>{{ '%0.2f' % total_miner_info[model].value|float}} {{ total_miner_info[model].unit}}</td>			
                 <td>{% if total_miner_info[model].sum != total_miner_info[model].offline %} 
-				{% set evg = (total_miner_info[model].value / (total_miner_info[model].sum - total_miner_info[model].offline) ) %} {{'%0.2f' % evg|float}}
-				{% endif %}
+				{% set evg = (total_miner_info[model].value / (total_miner_info[model].sum - total_miner_info[model].offline) ) %} {{'%0.2f' % evg|float}} {{ total_miner_info[model].unit}} 
+				{% endif %}  
 				</td>			
             </tr>
 					{% endif %}
@@ -155,7 +155,7 @@
 
 	
 	
-    <table id="table" class="table table-bordered" 
+    <table id="table" class="table table-bordered text-center" 
 					data-toggle="table"
 					data-search="true"
 					data-filter-control="true" 
@@ -196,7 +196,9 @@
 			{% endif %} id="tablerow{{ loop.index }}"
 			>
 				<td class="bs-checkbox "><input name="btSelectItem" type="checkbox" data-index="{{ loop.index }}"></td>
-                <td><a target="_blank" href="http://{{ active_miner2.ip }}" class="text-success ip" id="{{ loop.index }}">{{ active_miner2.ip }}</a><a target="_blank" href="/history/{{ active_miner2.ip }}" class="text-primary pull-right"><i class="material-icons">history</i></a></td>
+                <td>
+				<a target="_blank" href="http://{{ active_miner2.ip }}" class="text-success ip" id="{{ loop.index }}">{{ active_miner2.ip }}</a>
+				<a target="_blank" href="/history/{{ active_miner2.ip }}" class="text-primary pull-right"><i class="material-icons">info</i></a></td>
                 <td>{{ active_miner2.worker }}</td>
                 <td>{{ active_miner2.model.model }}</td>
                 <!-- <td>{{ active_miner2.remarks }}</td>-->
