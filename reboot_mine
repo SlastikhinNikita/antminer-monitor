@@ -1,0 +1,11 @@
+#!/bin/bash
+PASSWD="admin"
+COMM="
+set timeout 120
+spawn ssh root@$1 "/sbin/reboot"
+expect \"*(yes/no)?*\" {send \"yes\r\"}
+expect \"password:\"
+send \"$PASSWD\r\"
+expect eof
+"
+expect -c "$COMM"

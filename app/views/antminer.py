@@ -309,7 +309,7 @@ def history_miner(ip):
 						   
 
 
-t = ClockThread(10)
+t = ClockThread(1)
 t.start()
 						   
 t = ClockThread2(10)

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+    <title>Antminer Info {{ ip }}</title>
+   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.css">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}} ">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	
+	
+	
+
+<link rel="apple-touch-icon" sizes="120x120" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+<link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
+<link rel="mask-icon" href="{{ url_for('static', filename='favicon//safari-pinned-tab.svg') }}" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+
+
+	
+   </head>
+   <body>
+<div class="row">
+<div class="col">
+         <h2>Antminer Info {{ ip }}</h2>
+      </div>
+      </div>
+<div class="row">
+<div class="col">
+
+	
+	
+    <table id="table" class="table table-bordered" 
+					data-toggle="table"
+					data-search="true"
+					data-filter-control="true" 
+					data-show-export="true"
+					data-toolbar="#toolbar">
+	<thead class="thead-dark">
+        <tr>
+			<th data-field="state" data-checkbox="true" ></th>
+            <th data-field="worker2" data-filter-control="input" data-sortable="true"><span class="text-success">Worker</span></th>
+            <th data-field="model2" data-filter-control="select" data-sortable="true"><span class="text-success">Model</span></th>
+           <!-- <th data-field="remarks2" data-filter-control="input" data-sortable="true"><span class="text-success">Remarks</span></th>-->
+            <th data-field="Os" data-filter-control="input" data-sortable="true" title="'O' means OK"><span class="text-success">(Os)</span></th>
+            <th data-field="Xs" data-filter-control="input" data-sortable="true" title="'X' means defective"><span class="text-success">(Xs)</span></th>
+            <th data-field="R" data-filter-control="input" data-sortable="true" title="'-' means instability of the power supply voltage or the defective hash board"><span class="text-success">(-)</span></th>
+            <th data-field="Chip" data-filter-control="input" data-sortable="true"><span class="text-success">Chip Temp(C)</span></th>
+           <!-- <th data-field="Fan" data-filter-control="input" data-sortable="true"><span class="text-success">Fan speeds (rpm)</span></th>-->
+            <th data-field="Hashrate" data-filter-control="input" data-sortable="true"><span class="text-success">Hashrate (5s)</span></th>
+          <!--   <th data-field="HW" data-filter-control="input" data-sortable="true"><span class="text-success">HW Error %</span></th>-->
+            <th data-field="Uptime" data-filter-control="input" data-sortable="true"><span class="text-success">Uptime</span></th>
+            <th data-field="Status" data-filter-control="select" data-sortable="true"><span class="text-success">Status</span></th>
+            <th data-field="Last" data-filter-control="input" data-sortable="true"><span class="text-success">Last</span></th>
+            <!--<th>JSON Info</th>-->
+            <!--<th>Reboot</th>
+            <th>Remove</th>-->
+        </tr>
+		</thead>
+  	
+		
+        {%- for active_miner2 in miner_history|sort(attribute='last') %}
+            <tr
+			{% if active_miner2.ip in miner_errors %} 
+				class="table-danger"
+			{% elif (active_miner2.chipsXs != '0') or (active_miner2.chipsl != '0') %}
+				class="table-warning"			
+			{% elif active_miner2.online == '0' %}
+				class="table-secondary"
+			{% endif %} id="tablerow{{ loop.index }}"
+			>
+				<td class="bs-checkbox "><input name="btSelectItem" type="checkbox" data-index="{{ loop.index }}"></td>
+                <td>{{ active_miner2.worker }}</td>
+                <td>{{ active_miner2.model.model }}</td>
+                <td>{{ active_miner2.chipsOs }}</td>
+                <td>{{ active_miner2.chipsXs }}</td>
+                <td>{{ active_miner2.chipsl }}</td>
+                <td>{{ active_miner2.tem }}</td>
+                <td>{{ active_miner2.hash }}</td>
+                <td>{{ active_miner2.uptime }}</td>
+                <td>
+                    {%- if active_miner2.online == '0' %}
+						Offline
+					{%- else %}
+						OK
+					{%- endif %}</td>
+				<td>{{ active_miner2.last }}</td>	
+           </tr>
+
+        {%- endfor %}		
+    </table>
+
+
+</div>
+</div>		 
+		 
+		 
+
+<div class="row">
+<div class="col"> <br/>
+</div>
+</div>	  
+	  
+	  
+	  
+	  
+	  
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/bootstrap-table.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/locale/bootstrap-table-ru-RU.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/extensions/editable/bootstrap-table-editable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/extensions/export/bootstrap-table-export.min.js"></script>
+
+<script src='http://rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.1/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+
+
+
+
+<script type="text/javascript">
+    function send(arr, ip, index) {
+        var url = ""
+
+        switch (arr) {
+            case 'reboot':
+                url = "/reboot/" + ip
+                $.post(url, function(data) {
+                    
+                });
+                break;
+
+            case 'delete':
+                url = "/delete/" + ip
+
+                $.post(url, function(data) {
+                    document.getElementById("tablerow" + index).remove();;
+                });
+                break;
+        };
+    };
+
+
+
+
+    $(document).ready(function() {
+        $('#btn-reboot').click(function() {
+			alert('Команда на перезагрузку хоста отправлена.');
+            $('.selected input:checked').each(function() {
+                var ip, name;
+                ip = $(this).closest('tr').find('.ip').html();
+
+                send('reboot', ip, '0');
+            })
+
+        })
+
+        $('#btn-remove').click(function() {
+			alert('Выбранные хосты удалёны. Ожидайте обновления таблицы');
+            $('.selected input:checked').each(function() {
+                var ip, id;
+                ip = $(this).closest('tr').find('.ip').html();
+                id = $(this).closest('tr').find('.ip').attr('id');
+
+                send('delete', ip, id);
+            })
+        })
+    })
+</script>
+
+  </body>
+</html>
+

@@ -265,12 +265,18 @@ def getAndUpdateHistory(miner):
 
 
     miner_rec = History.query.filter_by(ip=str(miner.ip)).order_by(History.last.desc()).first()
-    datetime_object = datetime.strptime(miner_rec.last, '%H:%M:%S %d/%m/%Y')
-    datetime_object = datetime.now() - datetime_object
 
-    if datetime_object.total_seconds() > 600:
+    if miner_rec is not None:
+        datetime_object = datetime.strptime(miner_rec.last, '%H:%M:%S %d/%m/%Y')
+        datetime_object = datetime.now() - datetime_object
+        if datetime_object.total_seconds() > 600:
+            db.session.add(record)
+            db.session.commit()    
+    else:
         db.session.add(record)
-        db.session.commit()    
+        db.session.commit()    	
+
+
 
 
 		
