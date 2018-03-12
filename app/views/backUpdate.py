@@ -43,6 +43,7 @@ def getAndUpdate(miner):
     rec_fan={}
     rec_hash={}
     rec_hwerorr={}
+    rec_status={}
     rec_uptime={}
     rec_online={}
     total_hash_rate_per_model = {"L3+": {"value": 0, "unit": "MH/s" },
@@ -77,6 +78,7 @@ def getAndUpdate(miner):
             rec_fan = '0'
             rec_hash = '0'
             rec_hwerorr = '0'
+            rec_status = 'offline'
             rec_uptime = '0'
             rec_online = '0'
         else:
@@ -117,7 +119,7 @@ def getAndUpdate(miner):
             rec_hash = "{:3.2f} {}".format(value, unit)
 
             rec_hwerorr = miner_stats['STATS'][1]['Device Hardware%']
-
+            rec_status = 'OK'
             rec_uptime = timedelta(seconds=miner_stats['STATS'][1]['Elapsed'])
 
 
@@ -152,6 +154,7 @@ def getAndUpdate(miner):
             record.fan = str(rec_fan)
             record.hash = str(rec_hash)
             record.hwerorr = str(rec_hwerorr)
+            record.status = str(rec_status)
             record.uptime = str(rec_uptime)
             record.online = str(rec_online)
             record.last = str(rec_last)
@@ -181,6 +184,7 @@ def getAndUpdateHistory(miner):
     rec_fan={}
     rec_hash={}
     rec_hwerorr={}
+    rec_status={}
     rec_uptime={}
     rec_online={}
     total_hash_rate_per_model = {"L3+": {"value": 0, "unit": "MH/s" },
@@ -206,6 +210,7 @@ def getAndUpdateHistory(miner):
         rec_fan = '0'
         rec_hash = '0'
         rec_hwerorr = '0'
+        rec_status = 'offline'
         rec_uptime = '0'
         rec_online = '0'
     else:
@@ -244,6 +249,7 @@ def getAndUpdateHistory(miner):
         rec_hash = "{:3.2f} {}".format(value, unit)
 
         rec_hwerorr = miner_stats['STATS'][1]['Device Hardware%']
+        rec_status = 'OK'
 
         rec_uptime = timedelta(seconds=miner_stats['STATS'][1]['Elapsed'])
 
@@ -259,6 +265,7 @@ def getAndUpdateHistory(miner):
                                   fan=str(rec_fan), \
                                   hash=str(rec_hash), \
                                   hwerorr=str(rec_hwerorr), \
+                                  status=str(rec_status), \
                                   uptime=str(rec_uptime), \
                                   online=str(rec_online), \
                                   last=str(rec_last))

@@ -289,10 +289,18 @@ def delete_miner(ip):
         db.session.commit()
         error_message = "[INFO] Deleted {} successfully.".format(ip)
         logger.info(error_message)
-#        flash(error_message, "alert-success")
     except IntegrityError as e:
         db.session.rollback()
-#        flash("IP Address {} Erorr".format(ip), "alert-danger")
+
+    try:
+        db.session.query(History).filter_by(ip=str(ip)).delete()
+        db.session.commit()
+        error_message = "[INFO] Deleted {} successfully.".format(ip)
+        logger.info(error_message)
+    except IntegrityError as e:
+        db.session.rollback()
+
+
     return redirect(url_for('miners'))
 
 

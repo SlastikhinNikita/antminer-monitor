@@ -15,6 +15,7 @@ class Miner(db.Model):
     fan = db.Column(db.String(255), nullable=True)
     hash = db.Column(db.String(255), nullable=True)
     hwerorr = db.Column(db.String(255), nullable=True)
+    status = db.Column(db.String(255), nullable=True)
     uptime = db.Column(db.String(255), nullable=True)
     online = db.Column(db.String(255), nullable=True)
     last = db.Column(db.String(255), nullable=True)
@@ -31,6 +32,7 @@ class Miner(db.Model):
                      fan='{}', \
                      hash='{}', \
                      hwerorr='{}', \
+                     status='{}', \
                      uptime='{}', \
                      online='{}', \
                      last='{}')".format(self.ip, \
@@ -44,6 +46,7 @@ class Miner(db.Model):
                                                self.fan, \
                                                self.hash, \
                                                self.hwerorr, \
+                                               self.status, \
                                                self.uptime, \
                                                self.online, \
                                                self.last)
